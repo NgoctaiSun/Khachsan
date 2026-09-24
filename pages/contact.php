@@ -25,9 +25,11 @@ text-align: center;
 text-align:center;
 line-height:1.8;
 margin-bottom:40px;
+flex:1;
+border:#d11d1d 1px solid;
 }
 .contact-card__main--right{
-width:50%;}
+flex:1;}
 
 .hotline{
 margin-top:20px;
@@ -69,6 +71,7 @@ background:#0d5aa7;
 }
 .contact-card__main{
     display: flex;
+    flex-wrap: wrap;
     border: #079110 1px solid;
 }
 </style>
