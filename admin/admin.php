@@ -10,7 +10,7 @@
             display: flex;
         }
         .nav-admin {
-            width: 30%;
+            width: 20%;
             background-color: #f8f9fa;
             padding: 10px;
             border-radius: 5px;
@@ -42,7 +42,10 @@
         <h1>Quản trị</h1>
         <ul>
             <li><a href="admin.php?page=userManagement">Quản lý người dùng</a></li>
-            <li><a href="admin.php?page=productManagement">Quản lý sản phẩm</a></li>
+            <li><a href="admin.php?page=roomManagement">Quản lý phòng</a></li>
+            <li><a href="admin.php?page=commentManagement">Quản lý bình luận</a></li>
+            <li><a href="admin.php?page=contactManagement">Quản lý liên hệ</a></li>
+            <li><a href="../index.php">Trang chủ</a></li>
         </ul>
     </nav>
 
@@ -51,10 +54,15 @@
     $page=isset($_GET['page']) ? $_GET['page'] : '';
     if($page == 'userManagement') {
         include 'userManagement.php';
-    }else if($page == 'productManagement') {
-        include 'productManagement.php';
-    } else {
-        include 'admin.php';
+    }else if($page == 'roomManagement') {
+        include 'roomManagement.php';
+    }else if($page == 'commentManagement') {
+        include 'commentManagement.php';
+    }else if($page == 'contactManagement') {
+        include 'contactManagement.php';
+    }
+    else {
+        echo "<h2>Chào mừng đến với trang quản trị!</h2>";
 }
 ?>
     </main>
