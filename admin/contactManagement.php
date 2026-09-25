@@ -17,6 +17,7 @@ $row = mysqli_fetch_assoc($result);
             border-collapse: collapse;
             width: 100%;
             border: 1px solid #ddd;
+            text-align: center;
         }
     </style>
 </head>
@@ -38,11 +39,12 @@ $row = mysqli_fetch_assoc($result);
             </tr>
             <tr>
                 <td><?php echo $row['id'] ?? ''; ?></td>
-                <td><?php echo $row['ho_ten'] ?? ''; ?></td>
+                <td><?php echo $row['hoten'] ?? ''; ?></td>
                 <td><?php echo $row['email'] ?? ''; ?></td>
-                <td><?php echo $row['so_dien_thoai'] ?? ''; ?></td>
-                <td><?php echo $row['noi_dung'] ?? ''; ?></td>
-                <td><?php echo $row['thoi_gian'] ?? ''; ?></td>
+                <td><?php echo $row['sdt'] ?? ''; ?></td>
+                <td><?php echo $row['noidung'] ?? ''; ?></td>
+                <td><?php echo $row['thoigian'] ?? ''; ?></td>
+                <td><button>Xóa</button></td>
             </tr>
         </table>
     </div>
