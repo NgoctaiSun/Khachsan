@@ -103,21 +103,21 @@ Quý khách vui lòng liên hệ: <b>0335935101</b>
 </div>
 
 <div class="contact-card__main--right" style="border: #0d5aa7 1px solid;">
-<form class="contact-form" method="post" action="xuly_lienhe.php">
+<form class="contact-form" method="post" action="process_contact.php">
 <label for="hoten">Họ và tên:</label>
-<input type="text" placeholder="Họ và tên *" name="hoten" required>
+<input type="text" placeholder="Họ và tên *" name="name" required>
 
 <label for="sdt">Số điện thoại:</label>
-<input type="text" placeholder="Số điện thoại *" name="sdt" required>
+<input type="text" placeholder="Số điện thoại *" name="phone" required>
 
 <label for="email">Email:</label>
 <input type="email" placeholder="Email *" name="email" required>
 
 <label for="diachi">Địa chỉ:</label>
-<input type="text" placeholder="Địa chỉ" name="diachi">
+<input type="text" placeholder="Địa chỉ" name="address">
 
 <label for="noidung">Nội dung:</label>
-<textarea placeholder="Nội dung" name="noidung"></textarea>
+<textarea placeholder="Nội dung" name="content"></textarea>
 
 <button type="submit">📩 Gửi</button>
 

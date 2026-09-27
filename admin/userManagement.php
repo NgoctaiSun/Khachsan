@@ -19,6 +19,13 @@ $row = mysqli_fetch_assoc($result);
             border: 1px solid #ddd;
             text-align:center;
         }
+        th,td {
+            border: black 1px  solid;
+        }
+        tr:nth-child(even){
+            background-color: aliceblue;
+        }
+        tr:hover {background-color: aquamarine; transition: 0.3s;}
         #popup {
     display: none;
     position: fixed;
@@ -40,7 +47,7 @@ $row = mysqli_fetch_assoc($result);
 <div>
     <p>
         <h1>Quản lý người dùng</h1>
-        <button id="btn">Bấm vào đây</button>
+        <button id="btn">+ Thêm người mới</button>
 
 <div id="popup">
     <div class="popup-content">
@@ -84,7 +91,7 @@ $row = mysqli_fetch_assoc($result);
             </tr>
             <tr>
                 <td><?php echo $row['id'] ??''?></td>
-                <td><?php echo $row['hovaten'] ??''?></td>
+                <td><?php echo $row['hoten'] ??''?></td>
                 <td><?php echo $row['sdt'] ??''?></td>
                 <td><?php echo $row['diachi'] ??''?></td>
                 <td><?php echo $row['email'] ??''?></td>
