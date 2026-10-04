@@ -43,6 +43,7 @@
         <ul>
             <li><a href="admin.php?page=userManagement">Quản lý người dùng</a></li>
             <li><a href="admin.php?page=roomManagement">Quản lý phòng</a></li>
+            <li><a href="admin.php?page=bookingManagement">Quản lý đặt phòng</a></li>
             <li><a href="admin.php?page=commentManagement">Quản lý bình luận</a></li>
             <li><a href="admin.php?page=contactManagement">Quản lý liên hệ</a></li>
             <li><a href="../index.php">Trang chủ</a></li>
@@ -56,6 +57,8 @@
         include 'userManagement.php';
     }else if($page == 'roomManagement') {
         include 'roomManagement.php';
+    }else if($page == 'bookingManagemet'){
+        include 'bookingmanagemetn';
     }else if($page == 'commentManagement') {
         include 'commentManagement.php';
     }else if($page == 'contactManagement') {
