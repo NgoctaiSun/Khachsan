@@ -1,5 +1,5 @@
 <?php 
-include '../connect.php'; 
+include 'connect.php'; 
 $sql="SELECT * FROM loaiphong";
 $result=mysqli_query($conn,$sql);
 
