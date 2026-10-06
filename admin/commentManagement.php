@@ -15,7 +15,7 @@
 <body>
 <div>
     <div>
-        <p>Quản lý người dùng</p>
+        <p>Quản lý bình luận</p>
     </div>
     <div>
         <table class="admin__table">

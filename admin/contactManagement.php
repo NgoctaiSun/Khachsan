@@ -5,6 +5,18 @@ $sql="SELECT * FROM lienhe";
 $result=mysqli_query($conn,$sql);
 
 $row = mysqli_fetch_assoc($result);
+
+if(isset($_GET['id'])) {
+    $id = $_GET['id'];
+    $delete_sql = "DELETE FROM lienhe WHERE id = $id";
+    if(mysqli_query($conn, $delete_sql)) {
+        header("Location: admin.php?page=contactManagement&msg=success");
+        exit();
+    } else {
+        echo "Error deleting record: " . mysqli_error($conn);
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -44,7 +56,7 @@ $row = mysqli_fetch_assoc($result);
                 <td><?php echo $row['sdt'] ?? ''; ?></td>
                 <td><?php echo $row['noidung'] ?? ''; ?></td>
                 <td><?php echo $row['thoigian'] ?? ''; ?></td>
-                <td><button>Xóa</button></td>
+                <td><a href="?id=<?= $row['id'] ?>">Xóa</a></td>
             </tr>
         </table>
     </div>

@@ -33,7 +33,7 @@ if (!$user) {
     }
 }
 ?>
-<?php include __DIR__ . '/header.php'; ?>
+
 <div class="page-wrap">
     <div class="profile-card">
         <div class="section-title"><h2>Thông tin cá nhân</h2></div>
@@ -53,4 +53,4 @@ if (!$user) {
         </form>
     </div>
 </div>
-<?php include __DIR__ . '/footer.php'; ?>
+

@@ -1,5 +1,5 @@
 <?php 
-$conn =mysqli_connect('localhost','root','','khachsan_db');
+include 'connect.php'; 
 $sql="SELECT * FROM loaiphong";
 $result=mysqli_query($conn,$sql);
 
@@ -43,7 +43,7 @@ $row = mysqli_fetch_assoc($result);
 </head>
 <body>
     <div>
-        <img src="image/anhbia.jpg" alt="ảnh bìa" style="width:100%; height: 400px; object-fit: cover;">
+        <img src="images/banner.jpg" alt="ảnh bìa" style="width:100%; height: 400px; object-fit: cover;">
         <input type="search" placeholder="Tìm kiếm...">
     </div>
     <h2 style="text-align: center; margin-top: 20px;">Hạng phòng của chúng tôi</h2>
@@ -51,22 +51,40 @@ $row = mysqli_fetch_assoc($result);
 
     <div class="home__flex">
         
-        <div class="home__item" >
-            <img src="image/<?php echo $row['anh'] ?? ''; ?>" alt="ảnh phòng" style="width: 100%; height: 300px; object-fit: cover; margin-top: 20px;">
-            <h4 style="text-align: center; margin-top: 10px;"><?php echo $row['tenloaiphong'] ?? ''; ?></h4>
-            <p style="text-align: center; margin-top: 10px;"><?php echo $row['sokhach'] ?? ''; ?> <?php echo $row['dientich'] ?? ''; ?></p>
-            <p style="text-align: center; margin-top: 10px;">Giá: <?php echo $row['gia'] ?? 0; ?> đ</p>
-            <input type="button" value="Đặt phòng" style="display: block; margin: 20px auto; padding: 10px 20px; background-color: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer;">
-        </div>
+       <?php while ($row = mysqli_fetch_assoc($result)) { ?>
+    <div class="home__item">
+        <img src="images/<?php echo htmlspecialchars($row['anhphong']); ?>"
+             alt="Ảnh phòng"
+             style="width: 100%; height: 300px; object-fit: cover; margin-top: 20px;">
+
+        <h4 style="text-align: center; margin-top: 10px;">
+            <?php echo htmlspecialchars($row['tenphong']); ?>
+        </h4>
+
+        <p style="text-align: center; margin-top: 10px;">
+            Số khách: <?php echo htmlspecialchars($row['sokhach']); ?>
+            - Diện tích: <?php echo htmlspecialchars($row['dientich']); ?>
+        </p>
+
+        <p style="text-align: center; margin-top: 10px;">
+            Giá: <?php echo number_format($row['gia'], 0, ',', '.'); ?> đ
+        </p>
+
+        <a href="index.php?page=room_detail&id=<?php echo $row['id']; ?>"
+           class="btn">
+            Xem chi tiết
+        </a>
+    </div>
+<?php } ?>
     </div>
 
     <div class="home__flex--tienich">
         <h2 style="text-align: center; margin-top: 40px;">Tiện ích ngay tại khách sạn</h2>
         <h3 style="text-align: center; margin-top: 10px;">Chúng tôi cung cấp nhiều tiện ích đa dạng, từ hồ bơi, phòng tập gym, spa, nhà hàng, quán bar, đến các dịch vụ giải trí khác, nhằm mang đến trải nghiệm tuyệt vời cho quý khách.</h3>
-        <img src="image/tienich.jpg" alt="tiện ích" >
+        <img src="images/hoboi.jpg" alt="tiện ích" >
         <img src="image/tienich2.jpg" alt="tiện ích" >
         <img src="image/tienich3.jpg" alt="tiện ích" >
-        <img src="image/tienich4.jpg" alt="tiện ích" >
+        <img src="images/gym.png" alt="tiện ích" >
         <img src="image/tienich5.jpg" alt="tiện ích" >
         <img src="image/tienich6.jpg" alt="tiện ích" >
     </div>

@@ -7,25 +7,15 @@
     <title>Đăng nhập</title>
     <link rel="stylesheet" href="../css/form.css">
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            display: flex; 
-            justify-content: center;  
-            align-items: center; 
-            flex-direction: column; 
-        } 
-
         .login-card { 
             background-color: #f0f0f0; 
             padding: 40px; 
             border-radius: 10px; 
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
-
-            /* SỬA: 300px trước đây + padding làm kích thước bị khó kiểm soát */
-            /* 380px gồm cả padding, phần bên trong còn đúng 300px */
             width: 380px;
-
             height: auto; 
+            max-width: 90%;
+            margin:60px auto;
         } 
 
         .login-card h2 { 
@@ -97,16 +87,17 @@
             opacity: 0.6; 
             transition: opacity 0.2s; 
         } 
+        #mat:hover {
+        opacity: 1;
+    }
 
         input[type="text"], 
         input[type="password"] { 
             padding: 10px; 
             border: 1px solid #ebd09e; 
             border-radius: 5px; 
-
             /* GIỮ: cả 2 input cùng width */
             width: 100%; 
-
             /* THÊM: tránh padding làm input rộng hơn khung */
             box-sizing: border-box;
         } 
@@ -127,7 +118,7 @@
 <body>
 <div class="login-card">
         <h2>Đăng nhập</h2>
-<form method="post" action="process_login.php">
+<form method="post" action="pages/process_login.php">
 
     <div class="login-card__form">
         <label>👤 Tên đăng nhập </label> 
@@ -149,10 +140,10 @@
 
 <div class="login-card__register">
     <span>Chưa có tài khoản?</span>
-    <a href="register.php" style="text-decoration: none;">Đăng ký</a>
+    <a href="index.php?page=register" style="text-decoration: none;">Đăng ký</a>
 </div>
 
 </div>
 </body>
 </html>
-<script src="../function.js"></script>
+<script src="function.js"></script>

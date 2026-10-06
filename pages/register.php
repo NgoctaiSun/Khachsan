@@ -23,9 +23,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $hash = password_hash($matkhau, PASSWORD_DEFAULT);
             $role = 'khachhang';
-            $status = 1;
+            $status = 'hoatdong';
             $stmt = $conn->prepare("INSERT INTO taikhoan(hoten, matkhau, sdt, diachi, email, ngaytao, trangthai, vaitro) VALUES(?,?,?,?,?,NOW(),?,?)");
-            $stmt->bind_param("sssssis", $hoten, $hash, $sdt, $diachi, $email, $status, $role);
+            $stmt->bind_param("sssssss", $hoten, $hash, $sdt, $diachi, $email, $status, $role);
 
             if ($stmt->execute()) {
                 $message = '<div class="notice success">Đăng ký thành công. <a href="../index.php?page=login">Đăng nhập ngay</a>.</div>';
@@ -36,7 +36,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-<?php include __DIR__ . '/header.php'; ?>
 <div class="page-wrap">
     <div class="profile-card">
         <div class="section-title"><h2>Đăng ký tài khoản</h2><p>Tạo tài khoản để đặt phòng và quản lý thông tin cá nhân.</p></div>
@@ -56,4 +55,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
     </div>
 </div>
-<?php include __DIR__ . '/footer.php'; ?>

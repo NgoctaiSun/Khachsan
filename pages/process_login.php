@@ -12,7 +12,11 @@ $row=mysqli_fetch_assoc($result);
 
 if(isset($row))
     {
-        if($password==$row['matkhau'])
+        if($row['trangthai'] === 'khoa') {
+            echo "<script> alert('Tài khoản của bạn đã bị khóa'); window.location='../index.php?page=login'; </script>";
+            exit();
+        }
+        if(password_verify($password, $row['matkhau']))
             {
              $_SESSION['user']=$username;
              $_SESSION['role']=$row['vaitro'];

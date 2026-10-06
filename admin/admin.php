@@ -57,8 +57,8 @@
         include 'userManagement.php';
     }else if($page == 'roomManagement') {
         include 'roomManagement.php';
-    }else if($page == 'bookingManagemet'){
-        include 'bookingmanagemetn';
+    }else if($page == 'bookingManagement'){
+        include 'bookingManagement';
     }else if($page == 'commentManagement') {
         include 'commentManagement.php';
     }else if($page == 'contactManagement') {

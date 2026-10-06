@@ -1,4 +1,4 @@
-<?php include __DIR__ . '/header.php'; ?>
+
 <div class="page-wrap">
     <div class="about-box">
         <div class="section-title">
@@ -16,4 +16,4 @@
         </ul>
     </div>
 </div>
-<?php include __DIR__ . '/footer.php'; ?>
+
