@@ -149,7 +149,7 @@
 
 <div class="login-card__register">
     <span>Chưa có tài khoản?</span>
-    <a href="register.php" style="text-decoration: none;">Đăng ký</a>
+    <a href="index.php?page=register" style="text-decoration: none;">Đăng ký</a>
 </div>
 
 </div>
