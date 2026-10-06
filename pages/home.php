@@ -1,5 +1,4 @@
 <?php 
-include '../connect.php'; 
 $conn =mysqli_connect('localhost','root','','khachsan_db');
 $sql="SELECT * FROM loaiphong";
 $result=mysqli_query($conn,$sql);
