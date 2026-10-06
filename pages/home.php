@@ -52,13 +52,31 @@ $row = mysqli_fetch_assoc($result);
 
     <div class="home__flex">
         
-        <div class="home__item" >
-            <img src="image/<?php echo $row['anh'] ?? ''; ?>" alt="ảnh phòng" style="width: 100%; height: 300px; object-fit: cover; margin-top: 20px;">
-            <h4 style="text-align: center; margin-top: 10px;"><?php echo $row['tenloaiphong'] ?? ''; ?></h4>
-            <p style="text-align: center; margin-top: 10px;"><?php echo $row['sokhach'] ?? ''; ?> <?php echo $row['dientich'] ?? ''; ?></p>
-            <p style="text-align: center; margin-top: 10px;">Giá: <?php echo $row['gia'] ?? 0; ?> đ</p>
-            <input type="button" value="Đặt phòng" style="display: block; margin: 20px auto; padding: 10px 20px; background-color: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer;">
-        </div>
+       <?php while ($row = mysqli_fetch_assoc($result)) { ?>
+    <div class="home__item">
+        <img src="images/<?php echo htmlspecialchars($row['anhphong']); ?>"
+             alt="Ảnh phòng"
+             style="width: 100%; height: 300px; object-fit: cover; margin-top: 20px;">
+
+        <h4 style="text-align: center; margin-top: 10px;">
+            <?php echo htmlspecialchars($row['tenphong']); ?>
+        </h4>
+
+        <p style="text-align: center; margin-top: 10px;">
+            Số khách: <?php echo htmlspecialchars($row['sokhach']); ?>
+            - Diện tích: <?php echo htmlspecialchars($row['dientich']); ?>
+        </p>
+
+        <p style="text-align: center; margin-top: 10px;">
+            Giá: <?php echo number_format($row['gia'], 0, ',', '.'); ?> đ
+        </p>
+
+        <a href="index.php?page=room_detail&id=<?php echo $row['id']; ?>"
+           class="btn">
+            Xem chi tiết
+        </a>
+    </div>
+<?php } ?>
     </div>
 
     <div class="home__flex--tienich">
