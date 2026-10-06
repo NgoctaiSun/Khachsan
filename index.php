@@ -46,5 +46,6 @@ else if ($page == 'profile') {
 else {
     include 'pages/home.php';
 }
+?>
 </body>
 </html>
