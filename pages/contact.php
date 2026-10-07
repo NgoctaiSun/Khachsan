@@ -22,11 +22,11 @@ text-align: center;
 }
 
 .contact-card__main--left{
-text-align:center;
 line-height:1.8;
 margin-bottom:40px;
 flex:1;
 border:#d11d1d 1px solid;
+text-shadow: 2px 2px 4px rgba(189, 146, 5, 0.5);
 }
 .contact-card__main--right{
 flex:1;}
@@ -34,6 +34,7 @@ flex:1;}
 .hotline{
 margin-top:20px;
 font-weight:bold;
+text-align:center;
 }
 
 .contact-form{
@@ -74,6 +75,12 @@ background:#0d5aa7;
     flex-wrap: wrap;
     border: #079110 1px solid;
 }
+.contact-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 15px 0;
+}
 </style>
 </head>
 
@@ -84,26 +91,25 @@ background:#0d5aa7;
 <h2>LIÊN HỆ</h2>
 <div class="contact-card__main">
 <div class="contact-card__main--left">
-<p><b>Happy Travel - đơn vị tổ chức tour chuyên nghiệp</b></p>
+<p style="font-weight:bold; text-align:center;">HARMONY Hotel & Resort</p>
+<div class="contact-info">
+<p>📍 Địa chỉ: Khu vực I - Hưng Phú - TP Cần Thơ</p>
 
-<p>HAPPY TRAVEL</p>
+<p>✉ Email: harmonycantho@gmail.com</p>
+</div>
+<div class="contact-features">
+        <span class="feature-tag">✔ Sạch sẽ & Đầy đủ tiện nghi</span>
+        <span class="feature-tag">✔ Dịch vụ thân thiện, chu đáo</span>
+        <span class="feature-tag">✔ Bảo mật thông tin khách hàng</span>
+    </div>
 
-<p>📍 123 ĐƯỜNG VÕ TRƯỜNG TOẢN - NINH KIỀU - CẦN THƠ</p>
-
-<p>✉ happytravel@gmail.com</p>
-
-<p>Thời gian làm việc tại văn phòng:</p>
-
-<p>8:00 - 17:00 Thứ 2 đến thứ 6</p>
-
-<p>08:00 - 12:00 Thứ 7</p>
 <p class="hotline">
 Quý khách vui lòng liên hệ: <b>0335935101</b>
 </p>
 </div>
 
 <div class="contact-card__main--right" style="border: #0d5aa7 1px solid;">
-<form class="contact-form" method="post" action="process_contact.php">
+<form class="contact-form" method="post" action="pages/process_contact.php">
 <label for="hoten">Họ và tên:</label>
 <input type="text" placeholder="Họ và tên *" name="name" required>
 

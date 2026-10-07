@@ -4,8 +4,6 @@ $conn =mysqli_connect('localhost','root','','khachsan_db');
 $sql="SELECT * FROM lienhe";
 $result=mysqli_query($conn,$sql);
 
-$row = mysqli_fetch_assoc($result);
-
 if(isset($_GET['id'])) {
     $id = $_GET['id'];
     $delete_sql = "DELETE FROM lienhe WHERE id = $id";
@@ -31,6 +29,11 @@ if(isset($_GET['id'])) {
             border: 1px solid #ddd;
             text-align: center;
         }
+        .admin__table a{
+            text-decoration: none;
+            color: #d11d1d;
+            border: #d11d1d 1px solid;
+        }
     </style>
 </head>
 <body>
@@ -49,6 +52,7 @@ if(isset($_GET['id'])) {
                 <th>Thời gian</th>
                 <th>Thao tác</th>
             </tr>
+            <?php while($row = mysqli_fetch_assoc($result)): ?>
             <tr>
                 <td><?php echo $row['id'] ?? ''; ?></td>
                 <td><?php echo $row['hoten'] ?? ''; ?></td>
@@ -56,8 +60,9 @@ if(isset($_GET['id'])) {
                 <td><?php echo $row['sdt'] ?? ''; ?></td>
                 <td><?php echo $row['noidung'] ?? ''; ?></td>
                 <td><?php echo $row['thoigian'] ?? ''; ?></td>
-                <td><a href="?id=<?= $row['id'] ?>">Xóa</a></td>
+                <td><a href="admin.php?page=contactManagement&id=<?= $row['id'] ?>">Xóa</a></td>
             </tr>
+            <?php endwhile; ?>
         </table>
     </div>
 </div> 
