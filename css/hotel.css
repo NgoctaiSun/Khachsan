@@ -1,68 +1,815 @@
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f8f8f5;color:#2f3e46}
-a{text-decoration:none}
-.site-header{position:sticky;top:0;z-index:1000;background:#2f3e46;color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.12)}
-.header-inner{max-width:1200px;margin:auto;min-height:72px;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:20px}
-.brand{display:flex;align-items:center;gap:10px;color:#fff}
-.brand-logo{width:42px;height:42px;border:2px solid #f6b27a;border-radius:50%;display:grid;place-items:center;color:#f6b27a;font-weight:700}
-.brand-text{display:flex;flex-direction:column;line-height:1.05}
-.brand-text strong{letter-spacing:2px;font-size:17px}
-.brand-text small{font-size:9px;letter-spacing:2px;color:#e9d3b3}
-.main-nav{display:flex;align-items:center;gap:22px}
-.main-nav a{color:#fff;font-size:14px}
-.main-nav a:hover{color:#f6b27a}
-.nav-button{background:#166e7a;padding:10px 15px;border-radius:6px}
-.menu-toggle{display:none;background:none;border:0;color:#fff;font-size:26px}
-.page-wrap{max-width:1200px;margin:0 auto;padding:35px 20px}
-.section-title{text-align:center;margin-bottom:25px}
-.section-title h1,.section-title h2{margin:0 0 8px;color:#2f3e46}
-.section-title p{color:#6c757d}
-.hero{min-height:430px;background:linear-gradient(rgba(47,62,70,.35),rgba(47,62,70,.45)),url('../images/hero.svg') center/cover;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;padding:40px 20px}
-.hero h1{font-size:42px;margin:0 0 12px}
-.hero p{font-size:18px}
-.search-box{max-width:1000px;margin:-45px auto 35px;position:relative;background:#fff;padding:22px;border-radius:12px;box-shadow:0 8px 25px rgba(0,0,0,.12)}
-.search-grid{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:12px}
-.form-control{width:100%;padding:12px;border:1px solid #d6d6d6;border-radius:7px;background:#fff}
-.btn{display:inline-block;border:0;border-radius:7px;padding:11px 18px;background:#166e7a;color:#fff;cursor:pointer}
-.btn:hover{background:#125b65}
-.btn-secondary{background:#d4a57c;color:#2f3e46}
-.btn-danger{background:#b23b3b}
-.room-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
-.room-card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,.08)}
-.room-card img{width:100%;height:220px;object-fit:cover;background:#e9d3b3}
-.room-card-body{padding:18px}
-.room-card h3{margin:0 0 8px}
-.price{color:#166e7a;font-size:20px;font-weight:700}
-.old-price{text-decoration:line-through;color:#999;margin-right:8px;font-size:14px}
-.meta{display:flex;flex-wrap:wrap;gap:8px;color:#666;font-size:14px;margin:10px 0}
-.meta span{background:#f1f1ed;padding:6px 9px;border-radius:5px}
-.badge-discount{display:inline-block;background:#f6b27a;color:#2f3e46;padding:4px 7px;border-radius:5px;font-size:12px;font-weight:700}
-.detail{display:grid;grid-template-columns:1.1fr 1fr;gap:30px;background:#fff;padding:25px;border-radius:12px}
-.detail img{width:100%;height:420px;object-fit:cover;border-radius:10px;background:#e9d3b3}
-.detail h1{margin-top:0}
-.info-list{list-style:none;padding:0}
-.info-list li{padding:9px 0;border-bottom:1px solid #eee}
-.notice{padding:12px 15px;border-radius:7px;margin:15px 0;background:#f1f7f8}
-.notice.success{background:#eaf7ef;color:#24633d}
-.notice.error{background:#fff0f0;color:#9b2c2c}
-.profile-card{max-width:650px;margin:auto;background:#fff;padding:30px;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.08)}
-.profile-card label{display:block;font-weight:600;margin:12px 0 6px}
-.about-box{background:#fff;padding:30px;border-radius:12px;line-height:1.7}
-.admin-form{background:#fff;padding:20px;border-radius:10px;margin-bottom:20px}
-.admin-table{width:100%;border-collapse:collapse;background:#fff}
-.admin-table th,.admin-table td{border:1px solid #ddd;padding:10px;text-align:left}
-.admin-table th{background:#2f3e46;color:#fff}
-.admin-actions{display:flex;gap:7px;flex-wrap:wrap}
-@media(max-width:850px){
- .main-nav{display:none;position:absolute;top:72px;left:0;right:0;background:#2f3e46;padding:15px 20px;flex-direction:column;align-items:flex-start}
- .main-nav.show{display:flex}
- .menu-toggle{display:block}
- .room-grid{grid-template-columns:repeat(2,1fr)}
- .detail{grid-template-columns:1fr}
- .search-grid{grid-template-columns:1fr 1fr}
+/* Reset & Base Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
-@media(max-width:550px){
- .room-grid{grid-template-columns:1fr}
- .search-grid{grid-template-columns:1fr}
- .hero h1{font-size:30px}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #d8c8b8; /* Tone màu nền kem cát theo thiết kế mẫu */
+    color: #333;
+    line-height: 1.6;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* 1. Header Navigation */
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background-color: #3d4a52; /* Màu xám đen cao cấp */
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    height: 70px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #d4a57c;
+}
+
+.brand-logo {
+    width: 36px;
+    height: 36px;
+    border: 1px solid #d4a57c;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-weight: bold;
+}
+
+.brand-text strong {
+    font-size: 16px;
+    letter-spacing: 1.5px;
+    color: #fff;
+    display: block;
+}
+
+.brand-text small {
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: #d4a57c;
+}
+
+.main-nav {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.main-nav a {
+    color: #e0e0e0;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.main-nav a:hover, .main-nav a.active {
+    color: #d4a57c;
+}
+
+/* 2. Hero Section */
+.hero {
+    min-height: 400px;
+    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('../images/hero.jpg') center/cover no-repeat;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #fff;
+    padding: 40px 20px 80px;
+}
+
+.hero h1 {
+    font-size: 32px;
+    letter-spacing: 2px;
+    margin-bottom: 25px;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+/* Search Box Floating */
+.search-box {
+    max-width: 900px;
+    width: 90%;
+    margin: -50px auto 40px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(5px);
+    padding: 15px;
+    border-radius: 30px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.search-grid {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.form-control {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    outline: none;
+    font-size: 13px;
+    background: #fff;
+}
+
+.btn-search {
+    background: #c5a059;
+    color: #fff;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-search:hover {
+    background: #b08b46;
+}
+
+.btn-explore {
+    margin-top: 15px;
+    display: inline-block;
+    background: #c5a059;
+    color: #fff;
+    padding: 8px 25px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+/* 3. Danh sách phòng (Card bo tròn bo góc lớn) */
+.page-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.room-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.room-card {
+    background: #eddccb; /* Màu kem sáng hơn nền */
+    border-radius: 20px;
+    overflow: hidden;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.room-card h2 {
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: #333;
+    text-transform: uppercase;
+}
+
+.room-card img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 15px;
+}
+
+.room-card-body {
+    padding: 5px 0;
+}
+
+.room-card-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.room-card h3 {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.room-card p.desc {
+    font-size: 13px;
+    color: #666;
+    margin: 8px 0 15px;
+}
+
+.room-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.price-tag {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
+.btn-book {
+    background: #1b5e65; /* Màu xanh ngọc đậm theo nút bấm mẫu */
+    color: #fff;
+    padding: 8px 20px;
+    border-radius: 15px;
+    font-size: 13px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-book:hover {
+    background: #14474d;
+}
+
+/* 4. Footer */
+.site-footer {
+    background-color: #3d4a52;
+    color: #ccc;
+    padding: 40px 20px 20px;
+    margin-top: 60px;
+    font-size: 13px;
+}
+
+.footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    gap: 30px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #55626a;
+}
+
+.footer-col h4 {
+    color: #fff;
+    margin-bottom: 12px;
+}
+
+.footer-col ul {
+    list-style: none;
+}
+
+.footer-col ul li {
+    margin-bottom: 6px;
+}
+
+.copyright {
+    max-width: 1100px;
+    margin: 15px auto 0;
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #aaa;
+}
+
+/* Responsive cho điện thoại */
+@media (max-width: 768px) {
+    .room-grid { grid-template-columns: 1fr; }
+    .search-grid { flex-direction: column; }
+    .footer-inner { grid-template-columns: 1fr; }
+}
+/* Custom Giao diện theo mẫu */
+body {
+    background-color: #d8c8b8 !important; /* Màu kem cát */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header */
+.site-header {
+    background-color: #3d4a52 !important;
+}
+
+/* Hero Section */
+.hero {
+    min-height: 380px;
+    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('../images/banner.jpg') center/cover no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+}
+
+.hero h1 {
+    font-size: 28px;
+    letter-spacing: 2px;
+    font-weight: 700;
+}
+
+/* Search Box Floating */
+.search-box {
+    max-width: 900px;
+    width: 90%;
+    margin: -40px auto 30px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px 20px;
+    border-radius: 30px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    position: relative;
+    z-index: 10;
+}
+
+.search-grid {
+    display: flex;
+    gap: 10px;
+}
+
+.search-grid .form-control {
+    flex: 1;
+    padding: 8px 15px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    outline: none;
+}
+
+.btn-search {
+    background: #c5a059;
+    color: #fff;
+    border: none;
+    padding: 8px 22px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-explore {
+    display: inline-block;
+    background: #c5a059;
+    color: #fff;
+    padding: 6px 18px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Grid Card Phòng */
+.room-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+}
+
+.room-card {
+    background: #eddccb;
+    border-radius: 18px;
+    padding: 20px;
+}
+
+.room-card h2 {
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.room-card img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.room-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.price-tag {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
+.btn-book {
+    background: #1b5e65;
+    color: #fff !important;
+    padding: 8px 18px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Footer Style */
+.site-footer {
+    background-color: #3d4a52;
+    color: #ccc;
+    padding: 30px 20px 15px;
+    margin-top: 50px;
+}
+
+.footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1.5fr 1fr;
+    gap: 20px;
+}
+
+.copyright {
+    max-width: 1100px;
+    margin: 20px auto 0;
+    padding-top: 15px;
+    border-top: 1px solid #55626a;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+}
+/* =========================================================
+   GIAO DIỆN TRANG PHÒNG RESORT 5 SAO HOÀNH TRÁNG (LUXURY ROOMS)
+   ========================================================= */
+
+/* 1. Hero Banner Full-Width */
+.luxury-rooms-hero {
+    position: relative;
+    height: 480px;
+    background: url('../images/banner.jpg') center/cover no-repeat fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #fff;
+    margin-bottom: -50px; /* Tạo hiệu ứng thẻ lọc đè lên Banner */
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(15,23,42,0.7) 0%, rgba(15,23,42,0.85) 100%);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    padding: 0 20px;
+}
+
+.luxury-badge {
+    color: #c5a059;
+    font-size: 13px;
+    letter-spacing: 4px;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.hero-content h1 {
+    font-size: 38px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #f8fafc;
+    margin-bottom: 15px;
+    text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.hero-content p {
+    font-size: 15px;
+    color: #cbd5e1;
+    line-height: 1.6;
+}
+
+.scroll-down-icon {
+    margin-top: 20px;
+    font-size: 24px;
+    color: #c5a059;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+}
+
+/* 2. Main Container & Grand Filter Card */
+.grand-container {
+    max-width: 1200px;
+    margin: 0 auto 80px;
+    padding: 0 20px;
+    position: relative;
+    z-index: 10;
+}
+
+.grand-filter-card {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    border: 1px solid rgba(197, 160, 89, 0.3);
+    margin-bottom: 50px;
+}
+
+.grand-filter-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr 1fr;
+    gap: 20px;
+    align-items: flex-end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filter-group label {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #475569;
+}
+
+.grand-input, .grand-select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    font-size: 14px;
+    outline: none;
+    background: #f8fafc;
+    transition: 0.3s;
+}
+
+.grand-input:focus, .grand-select:focus {
+    border-color: #c5a059;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(197, 160, 89, 0.15);
+}
+
+.btn-grand-search {
+    background: #2f3e46;
+    color: #c5a059;
+    border: 1px solid #c5a059;
+    padding: 13px 20px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: 0.3s;
+    height: 47px;
+}
+
+.btn-grand-search:hover {
+    background: #c5a059;
+    color: #fff;
+}
+
+/* 3. Grand Room Card (Bố cục Nổi Bật) */
+.grand-room-list {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.grand-room-card {
+    display: flex;
+    background: #fff;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: 1px solid #f1f5f9;
+}
+
+.grand-room-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+}
+
+/* Khung ảnh trái */
+.grand-room-image {
+    flex: 1.2;
+    position: relative;
+    min-height: 350px;
+    overflow: hidden;
+}
+
+.grand-room-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.grand-room-card:hover .grand-room-image img {
+    transform: scale(1.08);
+}
+
+.image-tag-top {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(15, 23, 42, 0.8);
+    color: #c5a059;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    padding: 6px 14px;
+    border-radius: 30px;
+    backdrop-filter: blur(4px);
+}
+
+.image-price-badge {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 12px 20px;
+    border-radius: 16px;
+    text-align: right;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.image-price-badge span {
+    display: block;
+    font-size: 10px;
+    color: #64748b;
+    text-transform: uppercase;
+}
+
+.image-price-badge strong {
+    font-size: 22px;
+    color: #0f172a;
+    display: block;
+    line-height: 1;
+    margin: 3px 0;
+}
+
+.image-price-badge small {
+    font-size: 11px;
+    color: #8c6d46;
+    font-weight: bold;
+}
+
+/* Khung chi tiết phải */
+.grand-room-details {
+    flex: 1.5;
+    padding: 35px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.room-stars {
+    color: #f59e0b;
+    font-size: 14px;
+    letter-spacing: 2px;
+    margin-bottom: 5px;
+}
+
+.room-name {
+    font-size: 26px;
+    color: #0f172a;
+    font-weight: 800;
+    margin-bottom: 15px;
+}
+
+/* Amenities Chips */
+.amenities-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.chip {
+    background: #f1f5f9;
+    color: #334155;
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.room-description {
+    font-size: 14px;
+    color: #475569;
+    line-height: 1.7;
+    margin-bottom: 25px;
+}
+
+/* Card Footer */
+.grand-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 20px;
+}
+
+.guarantee-text {
+    font-size: 12px;
+    color: #16a34a;
+    font-weight: 600;
+}
+
+.footer-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-outline-gold {
+    border: 2px solid #c5a059;
+    color: #8c6d46;
+    padding: 10px 22px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 800;
+    transition: 0.3s;
+}
+
+.btn-outline-gold:hover {
+    background: #fef3c7;
+}
+
+.btn-solid-gold {
+    background: linear-gradient(135deg, #c5a059 0%, #a37c3f 100%);
+    color: #fff !important;
+    padding: 10px 26px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 800;
+    box-shadow: 0 4px 15px rgba(197, 160, 89, 0.4);
+    transition: 0.3s;
+}
+
+.btn-solid-gold:hover {
+    box-shadow: 0 8px 25px rgba(197, 160, 89, 0.6);
+    transform: translateY(-2px);
+}
+
+/* No Results Box */
+.no-results-box {
+    text-align: center;
+    padding: 60px 20px;
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.no-results-icon {
+    font-size: 50px;
+    margin-bottom: 15px;
+}
+
+.no-results-box h3 {
+    font-size: 20px;
+    color: #0f172a;
+    margin-bottom: 10px;
+}
+
+.no-results-box p {
+    color: #64748b;
+    font-size: 14px;
+    margin-bottom: 25px;
+}
+
+.btn-reset-grand {
+    display: inline-block;
+    background: #c5a059;
+    color: #fff !important;
+    padding: 12px 30px;
+    border-radius: 30px;
+    font-weight: 800;
+    font-size: 13px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .grand-filter-grid {
+        grid-template-columns: 1fr;
+    }
+    .grand-room-card {
+        flex-direction: column;
+    }
+    .grand-room-image {
+        min-height: 250px;
+    }
+    .grand-card-footer {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
 }
