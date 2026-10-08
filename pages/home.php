@@ -2,8 +2,6 @@
 include 'connect.php'; 
 $sql="SELECT * FROM loaiphong";
 $result=mysqli_query($conn,$sql);
-
-$row = mysqli_fetch_assoc($result);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -82,11 +80,11 @@ $row = mysqli_fetch_assoc($result);
         <h2 style="text-align: center; margin-top: 40px;">Tiện ích ngay tại khách sạn</h2>
         <h3 style="text-align: center; margin-top: 10px;">Chúng tôi cung cấp nhiều tiện ích đa dạng, từ hồ bơi, phòng tập gym, spa, nhà hàng, quán bar, đến các dịch vụ giải trí khác, nhằm mang đến trải nghiệm tuyệt vời cho quý khách.</h3>
         <img src="images/hoboi.jpg" alt="tiện ích" >
-        <img src="image/tienich2.jpg" alt="tiện ích" >
-        <img src="image/tienich3.jpg" alt="tiện ích" >
-        <img src="images/gym.png" alt="tiện ích" >
-        <img src="image/tienich5.jpg" alt="tiện ích" >
-        <img src="image/tienich6.jpg" alt="tiện ích" >
+        <img src="images/spa.jpg" alt="tiện ích" >
+        <img src="images/nhahang.jpg" alt="tiện ích" >
+        <img src="images/gym.jpg" alt="tiện ích" >
+        <img src="images/bar.jpg" alt="tiện ích" >
+        <img src="images/vuon.jpg" alt="tiện ích" >
     </div>
 
 </body>

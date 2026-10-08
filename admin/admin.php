@@ -3,38 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../css/form.css">
+    <link rel="stylesheet" href="../css/UI.css">
+    <script src="/Khachsan/function.js?v=2"></script>
     <title>Admin Panel</title>
-    <style>
-        .admin-card {
-            display: flex;
-        }
-        .nav-admin {
-            width: 20%;
-            background-color: #f8f9fa;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        .nav-admin ul {
-            list-style-type: none;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .nav-admin li {
-            display: inline;
-        }
-        .nav-admin a {
-            text-decoration: none;
-            color: #007bff;
-        }
-        .admin-content {
-            width: 70%;
-            padding: 10px;
-        }
-</style>
 </head>
 <body>
 <div class="admin-card">
@@ -46,6 +17,7 @@
             <li><a href="admin.php?page=bookingManagement">Quản lý đặt phòng</a></li>
             <li><a href="admin.php?page=commentManagement">Quản lý bình luận</a></li>
             <li><a href="admin.php?page=contactManagement">Quản lý liên hệ</a></li>
+            <li><a href="admin.php?page=promotionManagement">Khuyến mãi</a></li>
             <li><a href="../index.php">Trang chủ</a></li>
         </ul>
     </nav>
@@ -63,6 +35,8 @@
         include 'commentManagement.php';
     }else if($page == 'contactManagement') {
         include 'contactManagement.php';
+    }else if($page == 'promotionManagement') {
+        include 'promotionManagement.php';
     }
     else {
         echo "<h2>Chào mừng đến với trang quản trị!</h2>";

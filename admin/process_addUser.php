@@ -1,5 +1,5 @@
 <?php 
-$conn =mysqli_connect('localhost','root','','khachsan_db');
+require_once __DIR__ . '/../connect.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $hoten = trim($_POST['hoten'] ?? '');

@@ -1,10 +1,5 @@
 <?php 
-include '../connect.php'; 
-// Nếu file ../connect.php đã tạo sẵn biến $conn thì có thể bỏ dòng mysqli_connect dưới đây:
-if (!$conn) {
-    $conn = mysqli_connect('localhost', 'root', '', 'khachsan_db');
-}
-
+require_once __DIR__ . '/../connect.php';
 $message = '';
 
 // 1. Xử lý lưu form POST trước khi SELECT dữ liệu
@@ -49,123 +44,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 $sql = "SELECT * FROM taikhoan WHERE vaitro = 'khachhang'";
 $result = mysqli_query($conn, $sql);
 ?>
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Quản lý người dùng</title>
-    <style>
-        .admin__table {
-            border-collapse: collapse;
-            width: 100%;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-        th, td {
-            border: 1px solid black;
-            padding: 8px;
-        }
-        tr:nth-child(even) { background-color: aliceblue; }
-        tr:hover { background-color: aquamarine; transition: 0.3s; }
-
-        #popup {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .popup-content {
-            background: white;
-            padding: 25px;
-            border-radius: 8px;
-            width: 420px;
-            max-width: 90%;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .popup-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-
-        .popup-header h3 { margin: 0; color: #333; }
-
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: #888;
-        }
-
-        .form-group {
-            margin-bottom: 12px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group label {
-            font-size: 13px;
-            margin-bottom: 4px;
-            font-weight: bold;
-            color: #555;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 9px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-
-        .popup-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .btn-submit {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 9px 18px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .btn-cancel {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            padding: 9px 18px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .btn-add {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-    </style>
-</head>
-<body>
 
 <?php echo $message; ?>
 
@@ -264,22 +142,3 @@ $result = mysqli_query($conn, $sql);
     </div>
 </div> 
 
-<script>
-    let btn = document.getElementById("btn");
-    let popup = document.getElementById("popup");
-    let btnClose = document.getElementById("btnClose");
-    let btnCloseX = document.getElementById("btnCloseX");
-
-    btn.onclick = function() {
-        popup.style.display = "flex";
-    };
-
-    function hidePopup() {
-        popup.style.display = "none";
-    }
-
-    btnClose.onclick = hidePopup;
-    btnCloseX.onclick = hidePopup;
-</script>
-</body>
-</html>

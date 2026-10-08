@@ -1,6 +1,5 @@
 <?php 
-include '../connect.php'; 
-$conn =mysqli_connect('localhost','root','','khachsan_db');
+require_once __DIR__ . '/../connect.php';
 $sql="SELECT * FROM lienhe";
 $result=mysqli_query($conn,$sql);
 
@@ -16,27 +15,6 @@ if(isset($_GET['id'])) {
 }
 
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin panel</title>
-    <style>
-        .admin__table {
-            border-collapse: collapse;
-            width: 100%;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-        .admin__table a{
-            text-decoration: none;
-            color: #d11d1d;
-            border: #d11d1d 1px solid;
-        }
-    </style>
-</head>
-<body>
 <div>
     <p>
         <h1>Quản lý liên hệ</h1>
@@ -66,5 +44,3 @@ if(isset($_GET['id'])) {
         </table>
     </div>
 </div> 
-</body>
-</html>
