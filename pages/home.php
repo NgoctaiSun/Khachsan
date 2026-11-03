@@ -45,9 +45,20 @@ $result = mysqli_query($conn, $sql);
 </head>
 
 <body>
-    <div>
-        <img src="images/banner.jpg" alt="ảnh bìa" style="width:100%; height: 400px; object-fit: cover;">
-        <input type="search" placeholder="Tìm kiếm...">
+   <!-- 1. KHU VỰC BANNER CHỈNH SỬA SANG TRỌNG -->
+    <div class="banner-wrapper">
+        <img src="images/banner.jpg" class="banner-img" alt="ảnh bìa">
+    </div>
+
+    <!-- 2. THANH TÌM KIẾM THIẾT KẾ ĐAN XEN HÀI HÒA -->
+    <div class="search-wrapper">
+        <form action="" method="GET" class="search-container">
+            <!-- Giữ lại cấu trúc trang của bạn bằng thẻ ẩn nếu cần thiết -->
+            <input type="hidden" name="page" value="search_result">
+            <span class="search-icon">🔍</span>
+            <input type="search" name="keyword" class="search-input" placeholder="Tìm kiếm hạng phòng lý tưởng của bạn...">
+            <button type="submit" class="search-btn">Tìm ngay</button>
+        </form>
     </div>
     <h2 style="text-align: center; margin-top: 20px;">Hạng phòng của chúng tôi</h2>
     <h3 style="text-align: center; margin-top: 10px;">Chúng tôi cung cấp nhiều loại phòng với chất lượng tỉ mỉ, mang đến sự đa dạng phù hợp với mọi nhu cầu của quý khách.</h3>
@@ -104,10 +115,11 @@ $result = mysqli_query($conn, $sql);
             </div>
         <?php } ?>
     </div>
-
+<h2 style="text-align: center; margin-top: 40px;">Tiện ích ngay tại khách sạn</h2>
+        <h3 style="text-align: center; margin-top: 10px;">Chúng tôi cung cấp nhiều tiện ích đa dạng, từ hồ bơi, 
+            phòng tập gym, spa, nhà hàng, quán bar, đến các dịch vụ giải trí khác, nhằm mang đến trải nghiệm tuyệt vời cho quý khách.</h3>
     <div class="home__flex--tienich">
-        <h2 style="text-align: center; margin-top: 40px;">Tiện ích ngay tại khách sạn</h2>
-        <h3 style="text-align: center; margin-top: 10px;">Chúng tôi cung cấp nhiều tiện ích đa dạng, từ hồ bơi, phòng tập gym, spa, nhà hàng, quán bar, đến các dịch vụ giải trí khác, nhằm mang đến trải nghiệm tuyệt vời cho quý khách.</h3>
+        
         <img src="images/hoboi.jpg" alt="tiện ích">
         <img src="images/spa.jpg" alt="tiện ích">
         <img src="images/nhahang.jpg" alt="tiện ích">

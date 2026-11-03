@@ -140,3 +140,316 @@
             font-weight: bold;
             margin-bottom: 15px;
         }
+        /* GIAO DIỆN BANNER CAO CẤP  */
+        .banner-wrapper {
+            width: 92%;
+            max-width: 1300px;
+            margin: 25px auto 0 auto;
+            position: relative;
+            height: 450px;
+            border-radius: 20px; /* Bo góc ảnh banner chuẩn hiện đại */
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15); /* Đổ bóng tạo chiều sâu */
+        }
+
+        .banner-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.95); /* Giảm độ sáng nhẹ để tăng chiều sâu */
+        }
+
+        /*  THANH TÌM KIẾM */
+        .search-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: -35px; /* Đẩy thanh tìm kiếm đè nhẹ lên mép dưới banner tạo sự liên kết */
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 10;
+            padding: 0 20px;
+        }
+
+        .search-container {
+            width: 100%;
+            max-width: 650px;
+            display: flex;
+            align-items: center;
+            background-color: #ffffff;
+            padding: 6px 6px 6px 20px; /* Chừa khoảng trống bên phải vừa khít nút bấm */
+            border-radius: 50px; /* Bo tròn viên thuốc hoàn hảo */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12); /* Đổ bóng mềm mại */
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Hiệu ứng phát sáng nhẹ màu vàng gold khi người dùng bấm vào ô nhập */
+        .search-container:focus-within {
+            border-color: #b38b4d;
+            box-shadow: 0 10px 35px rgba(179, 139, 77, 0.25);
+        }
+
+        .search-icon {
+            font-size: 18px;
+            margin-right: 12px;
+            color: #b38b4d;
+            flex-shrink: 0;
+        }
+
+        .search-input {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 16px;
+            color: #2d3748;
+            padding-right: 15px;
+        }
+
+        .search-input::placeholder {
+            color: #a0aec0;
+            font-style: italic;
+        }
+
+        /* Nút bấm hành động cao cấp */
+        .search-btn {
+            background: linear-gradient(135deg, #c5a059, #b38b4d); /* Tạo dải màu vàng gold hoàng gia */
+            color: #ffffff;
+            border: none;
+            padding: 12px 28px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(179, 139, 77, 0.3);
+            white-space: nowrap;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(179, 139, 77, 0.4);
+            filter: brightness(1.05);
+        }
+
+        .search-btn:active {
+            transform: translateY(1px);
+        }
+         /* GIAO DIỆN LIÊN HỆ */
+    .lienheflex {
+        max-width: 1100px;
+        width: 100%;
+        margin: auto;
+        background: white;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    }
+
+    /* Tiêu đề */
+    .contact-heading {
+        text-align: center;
+        padding: 35px 20px 25px;
+    }
+
+    .contact-heading span {
+        color: #b38b4d;
+        font-size: 13px;
+        letter-spacing: 3px;
+        font-weight: bold;
+    }
+
+    .contact-heading h2 {
+        color: #2F3E46;
+        font-size: 30px;
+        margin-top: 12px;
+        padding-bottom: 15px;
+        position: relative;
+        border: none;
+    }
+
+    .contact-heading h2::after {
+        content: "";
+        width: 65px;
+        height: 3px;
+        background: #d4af7c;
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .contact-heading p {
+        color: #777;
+        font-size: 15px;
+        margin-top: 15px;
+    }
+
+    /* Hai cột */
+    .contact-card__main {
+        display: grid;
+        grid-template-columns: 0.9fr 1.1fr;
+    }
+
+    /* Cột trái */
+    .contact-card__main--left {
+        background: #2F3E46;
+        color: white;
+        padding: 40px;
+        line-height: 1.8;
+    }
+
+    .hotel-name {
+        font-size: 23px;
+        font-weight: bold;
+        color: #d4af7c;
+        margin-bottom: 15px;
+    }
+
+    .hotel-description {
+        color: #d4dcdf;
+        font-size: 14px;
+        margin-bottom: 30px;
+    }
+
+    .contact-info {
+        margin-bottom: 25px;
+    }
+
+    .contact-info p {
+        margin-bottom: 18px;
+        font-size: 14px;
+        overflow-wrap: anywhere;
+    }
+
+    .contact-info strong {
+        color: #d4af7c;
+    }
+
+    /* Các tiện ích */
+    .contact-features {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        margin: 25px 0;
+    }
+
+    .feature-tag {
+        color: #e6e6e6;
+        font-size: 14px;
+    }
+
+    .hotline {
+        background: rgba(255,255,255,0.08);
+        padding: 15px;
+        border-left: 3px solid #d4af7c;
+        margin-top: 30px;
+        font-size: 14px;
+    }
+
+    .hotline b {
+        color: #d4af7c;
+        font-size: 20px;
+        display: block;
+        margin-top: 5px;
+    }
+
+    /* Cột phải */
+    .contact-card__main--right {
+        padding: 40px;
+    }
+
+    .contact-card__main--right h3 {
+        color: #2F3E46;
+        font-size: 22px;
+        margin-bottom: 10px;
+    }
+
+    .form-description {
+        color: #888;
+        font-size: 14px;
+        margin-bottom: 25px;
+        line-height: 1.6;
+    }
+
+    /* Form */
+    .contact-form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .contact-form label {
+        font-size: 14px;
+        font-weight: bold;
+        color: #444;
+        margin-top: 8px;
+    }
+
+    .contact-form input,
+    .contact-form textarea {
+        width: 100%;
+        border: 1px solid #ddd;
+        border-radius: 7px;
+        padding: 13px 15px;
+        font-size: 14px;
+        outline: none;
+        background: #fafafa;
+        transition: 0.3s;
+        font-family: Arial, sans-serif;
+    }
+
+    .contact-form input:focus,
+    .contact-form textarea:focus {
+        border-color: #d4af7c;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(212,175,124,0.15);
+    }
+
+    .contact-form textarea {
+        height: 110px;
+        resize: vertical;
+    }
+
+    /* Nút gửi */
+    .contact-form button {
+        width: 100%;
+        padding: 14px;
+        margin-top: 15px;
+        background: #d4af7c;
+        color: #2F3E46;
+        border: none;
+        border-radius: 7px;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .contact-form button:hover {
+        background: #b38b4d;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 12px rgba(179,139,77,0.25);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        body {
+            padding: 25px 12px;
+        }
+
+        .contact-card__main {
+            grid-template-columns: 1fr;
+        }
+
+        .contact-card__main--left,
+        .contact-card__main--right {
+            padding: 30px 25px;
+        }
+
+        .contact-heading h2 {
+            font-size: 25px;
+        }
+    }

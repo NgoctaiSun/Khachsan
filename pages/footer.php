@@ -35,7 +35,13 @@
 <body>
 <footer>
     <div class="footer-one">
-        <h3>Xin chào</h3>
+        <a class="brand" href="index.php">
+            <span class="brand-logo">HS</span>
+            <span class="brand-text">
+                <strong>HARMONY</strong>
+            </span>
+        </a>
+
         <p><a href="index.php?page=home">Trang chủ</a></p>
         <p><a href="index.php?page=about">Giới thiệu</a></p>
         <p><a href="index.php?page=contact">Liên hệ</a></p>

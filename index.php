@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
         <link rel="stylesheet" href="css/hotel.css">
-        <link rel="stylesheet" href="css/UI.css">
+        <link rel="stylesheet" href="css/UI.css?v=2">
     <style>
         body {
            min-height: 100vh;

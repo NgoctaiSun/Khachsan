@@ -1,86 +1,33 @@
+<?php
+$conn = mysqli_connect('localhost', 'root', '', 'khachsan_db');
+if(isset($_SESSION['id'])) {
+    $sql = "SELECT * FROM taikhoan where id=" . $_SESSION['id'];
+    $result = mysqli_query($conn, $sql);
+    $row = mysqli_fetch_assoc($result);
+} else {
+    $row = null;
+}
+
+?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Liên hệ</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Liên hệ - HARMONY Hotel</title>
+
 <style>
-    body{
-        background-color: #c9b38a;
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
     }
-.lienheflex{
-width:60%;
-margin:auto;
-background:white;
-padding:30px;
-border: #d11d1d 1px solid;
-}
 
-h2{
-border-bottom:3px solid #2c5aa0;
-padding-bottom:10px;
-text-align: center;
-}
-
-.contact-card__main--left{
-line-height:1.8;
-margin-bottom:40px;
-flex:1;
-border:#d11d1d 1px solid;
-text-shadow: 2px 2px 4px rgba(189, 146, 5, 0.5);
-}
-.contact-card__main--right{
-flex:1;}
-
-.hotline{
-margin-top:20px;
-font-weight:bold;
-text-align:center;
-}
-
-.contact-form{
-display:flex;
-flex-direction:column;
-gap:20px;
-}
-.contact-form input,
-.contact-form textarea{
-border:none;
-border-bottom:2px solid #ccc;
-padding:10px;
-font-size:16px;
-outline:none;
-}
-
-.contact-form textarea{
-height:100px;
-}
-
-button{
-width:120px;
-margin:auto;
-padding:10px;
-background:#1e6f7a;
-color:white;
-border:none;
-border-radius:5px;
-cursor:pointer;
-font-size:16px;
-}
-
-button:hover{
-background:#0d5aa7;
-}
-.contact-card__main{
-    display: flex;
-    flex-wrap: wrap;
-    border: #079110 1px solid;
-}
-.contact-features {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 15px 0;
-}
+    body {
+        font-family: Arial, sans-serif;
+        background: #f5f3ef;
+        color: #333;
+    }
 </style>
 </head>
 
@@ -88,51 +35,95 @@ background:#0d5aa7;
 
 <div class="lienheflex">
 
-<h2>LIÊN HỆ</h2>
-<div class="contact-card__main">
-<div class="contact-card__main--left">
-<p style="font-weight:bold; text-align:center;">HARMONY Hotel & Resort</p>
-<div class="contact-info">
-<p>📍 Địa chỉ: Khu vực I - Hưng Phú - TP Cần Thơ</p>
-
-<p>✉ Email: harmonycantho@gmail.com</p>
-</div>
-<div class="contact-features">
-        <span class="feature-tag">✔ Sạch sẽ & Đầy đủ tiện nghi</span>
-        <span class="feature-tag">✔ Dịch vụ thân thiện, chu đáo</span>
-        <span class="feature-tag">✔ Bảo mật thông tin khách hàng</span>
+    <!-- Tiêu đề -->
+    <div class="contact-heading">
+        <span>HARMONY HOTEL & RESORT</span>
+        <h2>LIÊN HỆ VỚI CHÚNG TÔI</h2>
+        <p>Chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ quý khách.</p>
     </div>
 
-<p class="hotline">
-Quý khách vui lòng liên hệ: <b>0335935101</b>
-</p>
-</div>
+    <div class="contact-card__main">
 
-<div class="contact-card__main--right" style="border: #0d5aa7 1px solid;">
-<form class="contact-form" method="post" action="pages/process_contact.php">
-<label for="hoten">Họ và tên:</label>
-<input type="text" placeholder="Họ và tên *" name="name" required>
+        <!-- Cột trái: Thông tin khách sạn -->
+        <div class="contact-card__main--left">
 
-<label for="sdt">Số điện thoại:</label>
-<input type="text" placeholder="Số điện thoại *" name="phone" required>
+            <p class="hotel-name">HARMONY Hotel & Resort</p>
 
-<label for="email">Email:</label>
-<input type="email" placeholder="Email *" name="email" required>
+            <p class="hotel-description">
+                Mang đến không gian nghỉ dưỡng thoải mái,
+                dịch vụ tận tâm và những trải nghiệm đáng nhớ
+                dành cho quý khách.
+            </p>
 
-<label for="diachi">Địa chỉ:</label>
-<input type="text" placeholder="Địa chỉ" name="address">
+            <div class="contact-info">
+                <p>
+                    📍 <strong>Địa chỉ</strong><br>
+                    Khu vực I - Hưng Phú - TP. Cần Thơ
+                </p>
 
-<label for="noidung">Nội dung:</label>
-<textarea placeholder="Nội dung" name="content"></textarea>
+                <p>
+                    ✉ <strong>Email</strong><br>
+                    harmonycantho@gmail.com
+                </p>
 
-<button type="submit">📩 Gửi</button>
+                <p>
+                    ☎ <strong>Điện thoại</strong><br>
+                    0335935101
+                </p>
+            </div>
 
-</form>
-</div>
+            <div class="contact-features">
+                <span class="feature-tag">✔ Sạch sẽ & đầy đủ tiện nghi</span>
+                <span class="feature-tag">✔ Dịch vụ thân thiện, chu đáo</span>
+                <span class="feature-tag">✔ Bảo mật thông tin khách hàng</span>
+            </div>
 
+            <div class="hotline">
+                Quý khách cần hỗ trợ?
+                <b>0335935101</b>
+            </div>
 
-</div>
+        </div>
 
+        <!-- Cột phải: Form liên hệ -->
+        <div class="contact-card__main--right">
+
+            <h3>Gửi tin nhắn cho chúng tôi</h3>
+
+            <p class="form-description">
+                Vui lòng điền thông tin bên dưới.
+                Chúng tôi sẽ tiếp nhận và phản hồi quý khách sớm nhất.
+            </p>
+
+            <form class="contact-form" method="post" action="pages/process_contact.php">
+
+                <label for="hoten">Họ và tên *</label>
+                <input type="text" id="hoten" name="name"
+                    placeholder="Nhập họ và tên" required value="<?= isset($row['hoten']) ? $row['hoten'] : '' ?>">
+
+                <label for="sdt">Số điện thoại *</label>
+                <input type="tel" id="sdt" name="phone"
+                    placeholder="Nhập số điện thoại" required value="<?= isset($row['sdt']) ? $row['sdt'] : '' ?>">
+
+                <label for="email">Email *</label>
+                <input type="email" id="email" name="email"
+                    placeholder="Nhập địa chỉ email" required value="<?= isset($row['email']) ? $row['email'] : '' ?>">
+
+                <label for="diachi">Địa chỉ</label>
+                <input type="text" id="diachi" name="address"
+                    placeholder="Nhập địa chỉ của bạn" value="<?= isset($row['diachi']) ? $row['diachi'] : '' ?>">
+
+                <label for="noidung">Nội dung *</label>
+                <textarea id="noidung" name="content"
+                    placeholder="Nhập nội dung liên hệ..." required></textarea>
+
+                <button type="submit">📩 GỬI LIÊN HỆ</button>
+
+            </form>
+
+        </div>
+
+    </div>
 </div>
 
 </body>

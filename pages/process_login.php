@@ -20,6 +20,7 @@ if(isset($row))
             {
              $_SESSION['user']=$username;
              $_SESSION['role']=$row['vaitro'];
+             $_SESSION['id']=$row['id'];
              if($row['vaitro']=='admin')
                 {
                     echo "<script> alert('Đăng nhập thành công'); window.location='../admin/admin.php'; </script>"   ;
