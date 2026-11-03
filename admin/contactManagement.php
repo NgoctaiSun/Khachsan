@@ -1,13 +1,36 @@
 <?php 
 require_once __DIR__ . '/../connect.php';
-$sql="SELECT * FROM lienhe";
-$result=mysqli_query($conn,$sql);
 
+// Số tài khoản hiển thị mỗi trang
+$limit = 10;
+
+// Lấy số trang hiện tại từ URL
+$page = isset($_GET['page_num']) ? (int)$_GET['page_num'] : 1;
+
+// Không cho phép trang nhỏ hơn 1
+if ($page < 1) {
+    $page = 1;
+}
+
+// Xác định vị trí bắt đầu lấy dữ liệu
+$start = ($page - 1) * $limit;
+$sql_count = "SELECT COUNT(*) AS total FROM lienhe";
+
+$result_count = mysqli_query($conn, $sql_count);
+$row_count = mysqli_fetch_assoc($result_count);
+
+$total_records = $row_count['total'];
+
+// Tính tổng số trang
+$total_pages = ceil($total_records / $limit);
+$sql="SELECT * FROM lienhe LIMIT $start, $limit";
+$result=mysqli_query($conn,$sql);
+// Xử lý xóa liên hệ
 if(isset($_GET['id'])) {
     $id = $_GET['id'];
     $delete_sql = "DELETE FROM lienhe WHERE id = $id";
     if(mysqli_query($conn, $delete_sql)) {
-        header("Location: admin.php?page=contactManagement&msg=success");
+        header("Location: admin.php?page=commentManagement&msg=success");
         exit();
     } else {
         echo "Error deleting record: " . mysqli_error($conn);
@@ -44,3 +67,25 @@ if(isset($_GET['id'])) {
         </table>
     </div>
 </div> 
+<div class="pagination">
+
+    <?php if ($page > 1) { ?>
+        <a href="?page=contactManagement&page_num=<?= $page - 1 ?>">
+            Trước
+        </a>
+    <?php } ?>
+
+    <?php for ($i = 1; $i <= $total_pages; $i++) { ?>
+        <a href="?page=contactManagement&page_num=<?= $i ?>"
+           class="<?= ($page == $i) ? 'active' : '' ?>">
+            <?= $i ?>
+        </a>
+    <?php } ?>
+
+    <?php if ($page < $total_pages) { ?>
+        <a href="?page=contactManagement&page_num=<?= $page + 1 ?>">
+            Sau
+        </a>
+    <?php } ?>
+
+</div>

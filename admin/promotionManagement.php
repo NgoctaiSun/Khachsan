@@ -1,8 +1,32 @@
 <?php 
 require_once __DIR__ . '/../connect.php';
+$limit = 10;
+//1. Xác định vị trí bắt đầu lấy dữ liệu
+// Lấy số trang hiện tại từ URL
+$page = isset($_GET['page_num']) ? (int)$_GET['page_num'] : 1;
 
+// Không cho phép trang nhỏ hơn 1
+if ($page < 1) {
+    $page = 1;
+}
 
-// 1. Xử lý lưu form POST trước khi SELECT dữ liệu
+// Xác định vị trí bắt đầu lấy dữ liệu
+$start = ($page - 1) * $limit;
+$sql_count = "SELECT COUNT(*) AS total FROM khuyenmai";
+
+$result_count = mysqli_query($conn, $sql_count);
+$row_count = mysqli_fetch_assoc($result_count);
+
+$total_records = $row_count['total'];
+
+// Tính tổng số trang
+$total_pages = ceil($total_records / $limit);
+// Truy vấn danh sách khuyến mãi và loại phòng
+$sql = "SELECT * FROM khuyenmai
+jOIN loaiphong ON khuyenmai.id_loaiphong = loaiphong.id";
+$result = mysqli_query($conn, $sql);
+
+// 2. Xử lý lưu form POST trước khi SELECT dữ liệu
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'them_khuyen_mai') {
     $loaiphong = trim($_POST['loaiphong'] ?? '');
     $dem= trim($_POST['dem'] ?? '');
@@ -18,10 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
-// 2. Truy vấn danh sách hiển thị ra bảng
-$sql = "SELECT * FROM khuyenmai
-jOIN loaiphong ON khuyenmai.id_loaiphong = loaiphong.id";
-$result = mysqli_query($conn, $sql);
+
 // 3. Tạm ngưng hoặc áp dụng khuyến mãi
 if (isset($_GET['id']) && isset($_GET['trangthai'])) {
     $id = intval($_GET['id']);
@@ -123,3 +144,25 @@ if (isset($_GET['id']) && isset($_GET['trangthai'])) {
         </table>
     </div>
 </div> 
+<div class="pagination">
+
+    <?php if ($page > 1) { ?>
+        <a href="?page=promotionManagement&page_num=<?= $page - 1 ?>">
+            Trước
+        </a>
+    <?php } ?>
+
+    <?php for ($i = 1; $i <= $total_pages; $i++) { ?>
+        <a href="?page=promotionManagement&page_num=<?= $i ?>"
+           class="<?= ($page == $i) ? 'active' : '' ?>">
+            <?= $i ?>
+        </a>
+    <?php } ?>
+
+    <?php if ($page < $total_pages) { ?>
+        <a href="?page=promotionManagement&page_num=<?= $page + 1 ?>">
+            Sau
+        </a>
+    <?php } ?>
+
+</div>

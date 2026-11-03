@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../css/UI.css">
+    <link rel="stylesheet" href="../css/page.css">
     <script src="/Khachsan/function.js?v=2"></script>
     <title>Admin Panel</title>
 </head>

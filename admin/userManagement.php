@@ -41,7 +41,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 }
 
 // 2. Truy vấn danh sách hiển thị ra bảng
-$sql = "SELECT * FROM taikhoan WHERE vaitro = 'khachhang'";
+// Số tài khoản hiển thị mỗi trang
+$limit = 10;
+
+// Lấy số trang hiện tại từ URL
+$page = isset($_GET['page_num']) ? (int)$_GET['page_num'] : 1;
+
+// Không cho phép trang nhỏ hơn 1
+if ($page < 1) {
+    $page = 1;
+}
+
+// Xác định vị trí bắt đầu lấy dữ liệu
+$start = ($page - 1) * $limit;
+$sql_count = "SELECT COUNT(*) AS total FROM taikhoan WHERE vaitro = 'khachhang'";
+
+$result_count = mysqli_query($conn, $sql_count);
+$row_count = mysqli_fetch_assoc($result_count);
+
+$total_records = $row_count['total'];
+
+// Tính tổng số trang
+$total_pages = ceil($total_records / $limit);
+$sql = "SELECT * FROM taikhoan WHERE vaitro = 'khachhang' LIMIT $start, $limit";
 $result = mysqli_query($conn, $sql);
 ?>
 
@@ -142,3 +164,25 @@ $result = mysqli_query($conn, $sql);
     </div>
 </div> 
 
+<div class="pagination">
+
+    <?php if ($page > 1) { ?>
+        <a href="?page=userManagement&page_num=<?= $page - 1 ?>">
+            Trước
+        </a>
+    <?php } ?>
+
+    <?php for ($i = 1; $i <= $total_pages; $i++) { ?>
+        <a href="?page=userManagement&page_num=<?= $i ?>"
+           class="<?= ($page == $i) ? 'active' : '' ?>">
+            <?= $i ?>
+        </a>
+    <?php } ?>
+
+    <?php if ($page < $total_pages) { ?>
+        <a href="?page=userManagement&page_num=<?= $page + 1 ?>">
+            Sau
+        </a>
+    <?php } ?>
+
+</div>
