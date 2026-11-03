@@ -69,7 +69,7 @@ $result = mysqli_query($conn, $sql);
 
         while ($row = mysqli_fetch_assoc($result)) {
             $id = $row['id'];
-            $sqlDiscount = "SELECT * FROM khuyenmai WHERE id_loaiphong = $id";
+            $sqlDiscount = "SELECT * FROM khuyenmai WHERE id_loaiphong = $id and trangthai = 'dangapdung'";
             $resultDiscount = mysqli_query($conn, $sqlDiscount);
             $hasDiscount = ($resultDiscount && mysqli_num_rows($resultDiscount) > 0);
         ?>

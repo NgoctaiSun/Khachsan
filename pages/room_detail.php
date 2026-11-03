@@ -33,7 +33,7 @@ if ($img !== '' && is_file(__DIR__ . '/../images/' . basename($img))) {
 }
 
 // 4. Lấy thông tin khuyến mãi nếu có
-$sqlDiscount = "SELECT * FROM khuyenmai WHERE id_loaiphong = $id LIMIT 1";
+$sqlDiscount = "SELECT * FROM khuyenmai WHERE id_loaiphong = $id and trangthai = 'dangapdung'";
 $resultDiscount = mysqli_query($conn, $sqlDiscount);
 
 // 5. Lấy username từ Session để kiểm tra lịch sử đặt phòng
@@ -288,7 +288,7 @@ $comments = $commentsStmt->get_result();
                         </div>
                     <?php endif; ?>
                 <?php else: ?>
-                    <p style="font-size: 13px; color: #e74c3c; text-align: center;">Bạn cần <a href="index.php?page=login">Đăng nhập</a> để đánh giá phòng này.</p>
+                    <p style="font-size: 13px; color: #f70808; text-align: center;">Bạn cần <a href="index.php?page=login" style="color: #2a06f4;">Đăng nhập</a> để đánh giá phòng này.</p>
                 <?php endif; ?>
             </div>
 
