@@ -1,5 +1,8 @@
 <?php 
 require_once __DIR__ . '/../connect.php';
+require_once 'check_permission.php';
+
+checkRole(['admin', 'letan']);
 $message = '';
 
 // 1. Xử lý lưu form POST trước khi SELECT dữ liệu

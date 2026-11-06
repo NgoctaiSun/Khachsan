@@ -1,6 +1,8 @@
 <?php 
 require_once __DIR__ . '/../connect.php';
+require_once 'check_permission.php';
 
+checkRole(['admin']);
 // Số tài khoản hiển thị mỗi trang
 $limit = 10;
 

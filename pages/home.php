@@ -1,6 +1,6 @@
 <?php
 include 'connect.php';
-$sql = "SELECT * FROM loaiphong";
+$sql = "SELECT * FROM loaiphong WHERE trangthai = 'hoatdong'"; // Chỉ lấy các loại phòng đang hoạt động
 $result = mysqli_query($conn, $sql);
 ?>
 <!DOCTYPE html>

@@ -1,6 +1,9 @@
 <?php
 session_start();
 require_once __DIR__ . '/../connect.php';
+require_once 'check_permission.php';
+
+checkRole(['admin', 'letan']);
 if (!isset($_SESSION['user']) || ($_SESSION['role'] ?? '') !== 'admin') { header('Location: ../index.php?page=login'); exit; }
 $message=''; $editRoom=null;
 if(isset($_GET['delete'])){

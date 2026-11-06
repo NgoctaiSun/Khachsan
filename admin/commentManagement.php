@@ -1,7 +1,22 @@
 <?php 
 require_once __DIR__ . '/../connect.php';
+require_once 'check_permission.php';
 
-// Số tài khoản hiển thị mỗi trang
+checkRole(['admin']);
+
+// Xử lý xóa bình luận an toàn hơn khi có action
+if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
+    $id = (int)$_GET['id'];
+    $delete_sql = "DELETE FROM binhluan WHERE id = $id";
+    if (mysqli_query($conn, $delete_sql)) {
+        header("Location: admin.php?page=commentManagement&msg=success");
+        exit();
+    } else {
+        $error_message = "Error deleting record: " . mysqli_error($conn);
+    }
+}
+
+// Số bản ghi hiển thị mỗi trang
 $limit = 10;
 
 // Lấy số trang hiện tại từ URL
@@ -14,94 +29,99 @@ if ($page < 1) {
 
 // Xác định vị trí bắt đầu lấy dữ liệu
 $start = ($page - 1) * $limit;
-$sql_count = "SELECT COUNT(*) AS total FROM binhluan";
 
+$sql_count = "SELECT COUNT(*) AS total FROM binhluan";
 $result_count = mysqli_query($conn, $sql_count);
 $row_count = mysqli_fetch_assoc($result_count);
-
 $total_records = $row_count['total'];
 
 // Tính tổng số trang
 $total_pages = ceil($total_records / $limit);
-$sql="SELECT * FROM binhluan LIMIT $start, $limit";
-$result=mysqli_query($conn,$sql);
-// Xử lý xóa bình luận
-if(isset($_GET['id'])) {
-    $id = $_GET['id'];
-    $delete_sql = "DELETE FROM binhluan WHERE id = $id";
-    if(mysqli_query($conn, $delete_sql)) {
-        header("Location: admin.php?page=commentManagement&msg=success");
-        exit();
-    } else {
-        echo "Error deleting record: " . mysqli_error($conn);
-    }
-}
 
+$sql = "SELECT binhluan.*, taikhoan.hoten, phong.sophong, loaiphong.tenphong FROM binhluan  
+JOIN taikhoan ON binhluan.id_taikhoan = taikhoan.id
+JOIN phong ON binhluan.id_phong = phong.id
+JOIN loaiphong ON phong.id_loaiphong = loaiphong.id
+LIMIT $start, $limit";
+
+$result = mysqli_query($conn, $sql);
 ?>
+
 <div>
     <div>
         <h1>Quản lý bình luận</h1>
+        <?php if (!empty($error_message)): ?>
+            <div class="alert alert-danger"><?= htmlspecialchars($error_message) ?></div>
+        <?php endif; ?>
     </div>
     <div>
         <table class="admin__table">
-            <tr>
-                <th>ID</th>
-                <th>Tên khách hàng</th>
-                <th>Nội dung</th>
-                <th>Số sao</th>
-                <th>Trạng thái</th>
-                <th>Thao tác</th>
-            </tr>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tên loại phòng</th>
+                    <th>Số phòng</th>
+                    <th>Tên khách hàng</th>
+                    <th>Nội dung</th>
+                    <th>Số sao</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
                 <?php while($row = mysqli_fetch_assoc($result)): ?>
-            <tr>
-                <td><?php echo $row['id'] ?? ''; ?></td>
-                <td><?php echo $row['hoten'] ?? ''; ?></td>
-                <td>
-                     <p class="mb-1 text-muted small" style="max-width: 300px;"><?= htmlspecialchars($row['noidung']) ?></p>
-                                
-                                <?php if (!empty($row['traloi_admin'])): ?>
-                                    <div class="p-2 bg-light border-start border-3 border-success rounded text-dark small mt-1">
-                                        <strong class="text-success"><i class="fa-solid fa-reply me-1"></i>Admin:</strong> <?= htmlspecialchars($row['traloi_admin']) ?>
-                                    </div>
-                                <?php endif; ?>
-                </td>
-                <td>
-                    <span class="text-warning fw-bold">
-                                    <?= $row['sosao'] ?> <i class="fa-solid fa-star text-warning"></i>
-                                </span>
-                </td>
-                <td><?php echo $row['trangthai'] ?? ''; ?></td>
-                <td>
-                     <div class="d-flex justify-content-center gap-2">
-                                    <!-- Nút Trả lời bình luận -->
-                                    <button type="button" class="btn btn-sm btn-outline-primary" 
-                                            onclick="openReplyModal(<?= $row['id'] ?>, '<?= htmlspecialchars(addslashes($row['traloi_admin'] ?? '')) ?>')"
-                                            title="Trả lời bình luận">
-                                        <i class="fa-solid fa-reply"></i>
-                                    </button>
+                <tr>
+                    <td><?= htmlspecialchars($row['id'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($row['tenphong'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($row['sophong'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($row['hoten'] ?? '') ?></td>
+                    <td>
+                         <p class="mb-1 text-muted small" style="max-width: 300px;"><?= htmlspecialchars($row['noidung'] ?? '') ?></p>
+                                    
+                         <?php if (!empty($row['traloi_admin'])): ?>
+                             <div class="p-2 bg-light border-start border-3 border-success rounded text-dark small mt-1">
+                                 <strong class="text-success"><i class="fa-solid fa-reply me-1"></i>Admin:</strong> <?= htmlspecialchars($row['traloi_admin']) ?>
+                             </div>
+                         <?php endif; ?>
+                    </td>
+                    <td>
+                        <span class="text-warning fw-bold">
+                            <?= htmlspecialchars($row['sosao'] ?? '') ?> <i class="fa-solid fa-star text-warning"></i>
+                        </span>
+                    </td>
+                    <td><?= htmlspecialchars($row['trangthai'] ?? '') ?></td>
+                    <td>
+                         <div class="d-flex justify-content-center gap-2">
+                             <!-- Nút Trả lời bình luận -->
+                             <button type="button" class="btn btn-sm btn-outline-primary" 
+                                     onclick="openReplyModal(<?= $row['id'] ?>, '<?= htmlspecialchars(addslashes($row['traloi_admin'] ?? '')) ?>')"
+                                     title="Trả lời bình luận">
+                                 <i class="fa-solid fa-reply"></i>
+                             </button>
 
-                                    <!-- Nút Ẩn / Hiện bình luận -->
-                                    <a href="kiemsoat_binhluan.php?action=toggle_status&id=<?= $row['id'] ?>&current=<?= $row['trangthai'] ?>" 
-                                       class="btn btn-sm <?= ($row['trangthai'] == '1' || $row['trangthai'] == 'Hiển thị') ? 'btn-outline-warning' : 'btn-outline-success' ?>" 
-                                       title="<?= ($row['trangthai'] == '1' || $row['trangthai'] == 'Hiển thị') ? 'Ẩn bình luận này' : 'Hiện bình luận này' ?>">
-                                        <i class="fa-solid <?= ($row['trangthai'] == '1' || $row['trangthai'] == 'Hiển thị') ? 'fa-eye-slash' : 'fa-eye' ?>"></i>
-                                    </a>
+                             <!-- Nút Ẩn / Hiện bình luận -->
+                             <a href="kiemsoat_binhluan.php?action=toggle_status&id=<?= $row['id'] ?>&current=<?= $row['trangthai'] ?>" 
+                                class="btn btn-sm <?= ($row['trangthai'] == '1' || $row['trangthai'] == 'Hiển thị') ? 'btn-outline-warning' : 'btn-outline-success' ?>" 
+                                title="<?= ($row['trangthai'] == '1' || $row['trangthai'] == 'Hiển thị') ? 'Ẩn bình luận này' : 'Hiện bình luận này' ?>">
+                                 <i class="fa-solid <?= ($row['trangthai'] == '1' || $row['trangthai'] == 'Hiển thị') ? 'fa-eye-slash' : 'fa-eye' ?>"></i>
+                             </a>
 
-                                    <!-- Nút Xóa bình luận với Popup SweetAlert2 -->
-                                    <button type="button" class="btn btn-sm btn-outline-danger" 
-                                            title="Xóa vĩnh viễn"
-                                            onclick="confirmDelete(<?= $row['id'] ?>)">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                </div>
-                </td>
-            </tr>
-            <?php endwhile; ?>
-            </tr>
-            
+                             <!-- Nút Xóa bình luận có xác nhận -->
+                             <a href="admin.php?page=commentManagement&action=delete&id=<?= $row['id'] ?>" 
+                                class="btn btn-sm btn-outline-danger" 
+                                title="Xóa vĩnh viễn"
+                                onclick="return confirm('Bạn có chắc chắn muốn xóa vĩnh viễn bình luận này không?')">
+                                 <i class="fa-solid fa-trash"></i>
+                             </a>
+                         </div>
+                    </td>
+                </tr>
+                <?php endwhile; ?>
+            </tbody>
         </table>
     </div>
 </div> 
+
 <!-- MODAL POPUP ADMIN TRẢ LỜI BÌNH LUẬN -->
 <div class="modal fade" id="modalTraLoiBinhLuan" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -126,8 +146,9 @@ if(isset($_GET['id'])) {
     </div>
   </div>
 </div>
-<div class="pagination">
 
+<!-- PHÂN TRANG -->
+<div class="pagination">
     <?php if ($page > 1) { ?>
         <a href="?page=commentManagement&page_num=<?= $page - 1 ?>">
             Trước
@@ -146,5 +167,4 @@ if(isset($_GET['id'])) {
             Sau
         </a>
     <?php } ?>
-
 </div>

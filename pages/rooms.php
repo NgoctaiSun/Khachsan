@@ -24,7 +24,7 @@ if ($mugiagia === 'duoi2m') {
     $where .= " AND gia > 4000000";
 }
 
-$sql = "SELECT * FROM loaiphong $where ORDER BY gia ASC";
+$sql = "SELECT * FROM loaiphong $where AND trangthai = 'hoatdong' ORDER BY gia ASC";
 $result = mysqli_query($conn, $sql);
 $queryError = $result === false ? mysqli_error($conn) : '';
 ?>

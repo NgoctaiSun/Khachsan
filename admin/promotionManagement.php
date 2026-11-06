@@ -1,5 +1,8 @@
 <?php 
 require_once __DIR__ . '/../connect.php';
+require_once 'check_permission.php';
+
+checkRole(['admin']);
 $limit = 10;
 //1. Xác định vị trí bắt đầu lấy dữ liệu
 // Lấy số trang hiện tại từ URL
@@ -22,8 +25,15 @@ $total_records = $row_count['total'];
 // Tính tổng số trang
 $total_pages = ceil($total_records / $limit);
 // Truy vấn danh sách khuyến mãi và loại phòng
-$sql = "SELECT * FROM khuyenmai
-jOIN loaiphong ON khuyenmai.id_loaiphong = loaiphong.id";
+$sql = "SELECT 
+            km.id AS id_khuyenmai,
+            km.id_loaiphong,
+            km.dem,
+            km.phantramgiamgia,
+            km.trangthai,
+            lp.tenphong
+        FROM khuyenmai km
+        JOIN loaiphong lp ON km.id_loaiphong = lp.id";;
 $result = mysqli_query($conn, $sql);
 
 // 2. Xử lý lưu form POST trước khi SELECT dữ liệu
@@ -125,13 +135,13 @@ if (isset($_GET['id']) && isset($_GET['trangthai'])) {
                     <td><?= htmlspecialchars($row['trangthai'] ?? '') ?></td>
                     <td>
                         <?php if (($row['trangthai'] ?? '') === 'tamngung'): ?>
-                            <a href="admin.php?page=promotionManagement&id=<?= $row['id'] ?>&trangthai=dangapdung" 
+                            <a href="admin.php?page=promotionManagement&id=<?= $row['id_khuyenmai'] ?>&trangthai=dangapdung" 
                                onclick="return confirm('Bạn có chắc chắn muốn Áp dụng khuyến mãi này?')"
                                style="background: #28a745; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px;">
                                 Áp dụng
                             </a>
                         <?php else: ?>
-                            <a href="admin.php?page=promotionManagement&id=<?= $row['id'] ?>&trangthai=tamngung" 
+                            <a href="admin.php?page=promotionManagement&id=<?= $row['id_khuyenmai'] ?>&trangthai=tamngung" 
                                onclick="return confirm('Bạn có chắc chắn muốn Tạm ngưng khuyến mãi này?')"
                                style="background: #dc3545; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px;">
                                Tạm ngưng

@@ -1,49 +1,68 @@
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../css/UI.css">
+    <link rel="stylesheet" href="../css/UI.css?v=2">
     <link rel="stylesheet" href="../css/page.css">
+    <link rel="stylesheet" href="../css/UI_KT.css">
     <script src="/Khachsan/function.js?v=2"></script>
     <title>Admin Panel</title>
 </head>
-<body>
-<div class="admin-card">
-    <nav class="nav-admin">
-        <h1>Quản trị</h1>
-        <ul>
-            <li><a href="admin.php?page=userManagement">Quản lý người dùng</a></li>
-            <li><a href="admin.php?page=roomManagement">Quản lý phòng</a></li>
-            <li><a href="admin.php?page=bookingManagement">Quản lý đặt phòng</a></li>
-            <li><a href="admin.php?page=commentManagement">Quản lý bình luận</a></li>
-            <li><a href="admin.php?page=contactManagement">Quản lý liên hệ</a></li>
-            <li><a href="admin.php?page=promotionManagement">Khuyến mãi</a></li>
-            <li><a href="../index.php">Trang chủ</a></li>
-        </ul>
-    </nav>
 
-    <main class="admin-content">
-    <?php 
-    $page=isset($_GET['page']) ? $_GET['page'] : '';
-    if($page == 'userManagement') {
-        include 'userManagement.php';
-    }else if($page == 'roomManagement') {
-        include 'roomManagement.php';
-    }else if($page == 'bookingManagement'){
-        include 'bookingManagement';
-    }else if($page == 'commentManagement') {
-        include 'commentManagement.php';
-    }else if($page == 'contactManagement') {
-        include 'contactManagement.php';
-    }else if($page == 'promotionManagement') {
-        include 'promotionManagement.php';
-    }
-    else {
-        echo "<h2>Chào mừng đến với trang quản trị!</h2>";
-}
-?>
-    </main>
-</div>
+<body>
+    <div class="admin-card">
+        <nav class="nav-admin">
+            <h1>Quản trị</h1>
+            <ul>
+                <?php if (in_array($_SESSION['role'], ['admin', 'letan'])): ?>
+                    <li> <a href="admin.php?page=userManagement">Quản lý người dùng</a></li>
+                    <li><a href="admin.php?page=roomManagement">Quản lý phòng</a></li>
+                    <li><a href="admin.php?page=bookingManagement">Quản lý đặt phòng</a></li>
+                <?php endif; ?>
+                <?php if ($_SESSION['role'] === 'admin'): ?>
+                    <li><a href="admin.php?page=roomTypeManagement">Quản lý loại phòng</a></li>
+                    <li><a href="admin.php?page=commentManagement">Quản lý bình luận</a></li>
+                    <li><a href="admin.php?page=contactManagement">Quản lý liên hệ</a></li>
+                    <li><a href="admin.php?page=promotionManagement">Khuyến mãi</a></li>
+                <?php endif; ?>
+                <?php if (in_array($_SESSION['role'], ['admin', 'ketoan'])): ?>
+                    <li><a href="admin.php?page=revenueManagement">Quản lý doanh thu</a></li>
+                     <li><a href="admin.php?page=incomeAndExpenseManagement">Quản lý thu chi</a></li>
+                <?php endif; ?>
+                <li><a href="../index.php">Trang chủ</a></li>
+            </ul>
+        </nav>
+
+        <main class="admin-content">
+            <?php
+            $page = isset($_GET['page']) ? $_GET['page'] : '';
+            if ($page == 'userManagement') {
+                include 'userManagement.php';
+            } else if ($page == 'roomTypeManagement') {
+                include 'roomTypeManagement.php';
+            } else if ($page == 'roomManagement') {
+                include 'roomManagement.php';
+            } else if ($page == 'bookingManagement') {
+                include 'bookingManagement.php';
+            } else if ($page == 'commentManagement') {
+                include 'commentManagement.php';
+            } else if ($page == 'contactManagement') {
+                include 'contactManagement.php';
+            } else if ($page == 'promotionManagement') {
+                include 'promotionManagement.php';
+            } else if ($page == 'revenueManagement') {
+                include 'revenueManagement.php';
+            } else if ($page == 'incomeAndExpenseManagement') {
+                include 'incomeAndExpenseManagement.php';
+            } else {
+                echo "<h2>Chào mừng đến với trang quản trị!</h2>";
+            }
+            ?>
+        </main>
+    </div>
 </body>
+
 </html>

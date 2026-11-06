@@ -23,7 +23,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
             <?php if (isset($_SESSION['user'])): ?>
                 <a href="index.php?page=profile">Profile</a>
-                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                <?php if (isset($_SESSION['role']) && in_array($_SESSION['role'], ['admin', 'letan', 'ketoan'])): ?>
                     <a href="admin/admin.php">Quản trị</a>
                 <?php endif; ?>
                 <a class="nav-button" href="pages/logout.php">Đăng xuất</a>

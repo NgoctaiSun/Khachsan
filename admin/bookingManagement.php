@@ -1,4 +1,7 @@
 <?php
+require_once 'check_permission.php';
+
+checkRole(['admin', 'letan']);
 require_once __DIR__ . '/../connect.php';
 if(isset($_GET['status'])){ $id=(int)($_GET['id']??0); $status=trim($_GET['status']); $allowed=['Cho xac nhan','Da xac nhan','Da nhan phong','Hoan tat','Huy']; if($id>0 && in_array($status,$allowed,true)){ $s=$conn->prepare('UPDATE datphong SET trangthai=? WHERE id=?'); $s->bind_param('si',$status,$id); $s->execute(); }}
 $sql="SELECT d.*,t.hoten,t.sdt,p.sophong,lp.tenphong FROM datphong d JOIN taikhoan t ON t.id=d.id_taikhoan JOIN phong p ON p.id=d.id_phong JOIN loaiphong lp ON lp.id=p.id_loaiphong ORDER BY d.id DESC";

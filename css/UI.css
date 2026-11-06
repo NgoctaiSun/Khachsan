@@ -41,10 +41,7 @@
         tr:nth-child(even) { background-color: aliceblue; }
         tr:hover { background-color: aquamarine; transition: 0.3s; }
 .admin__table a {
-            text-decoration: none;
-            border: 1px solid #007bff;
-            font-size: 14px;
-            background-color: #ff0000;
+          background: #dc3545; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px;
         }
         #popup {
             display: none;
