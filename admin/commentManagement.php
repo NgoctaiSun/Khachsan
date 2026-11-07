@@ -4,17 +4,6 @@ require_once 'check_permission.php';
 
 checkRole(['admin']);
 
-// Xử lý xóa bình luận an toàn hơn khi có action
-if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
-    $id = (int)$_GET['id'];
-    $delete_sql = "DELETE FROM binhluan WHERE id = $id";
-    if (mysqli_query($conn, $delete_sql)) {
-        header("Location: admin.php?page=commentManagement&msg=success");
-        exit();
-    } else {
-        $error_message = "Error deleting record: " . mysqli_error($conn);
-    }
-}
 
 // Số bản ghi hiển thị mỗi trang
 $limit = 10;
@@ -93,25 +82,33 @@ $result = mysqli_query($conn, $sql);
                     <td>
                          <div class="d-flex justify-content-center gap-2">
                              <!-- Nút Trả lời bình luận -->
-                             <button type="button" class="btn btn-sm btn-outline-primary" 
+                             <button type="button" class="btn-icon btn-reply" style="width:15px;"
                                      onclick="openReplyModal(<?= $row['id'] ?>, '<?= htmlspecialchars(addslashes($row['traloi_admin'] ?? '')) ?>')"
                                      title="Trả lời bình luận">
                                  <i class="fa-solid fa-reply"></i>
                              </button>
 
                              <!-- Nút Ẩn / Hiện bình luận -->
-                             <a href="kiemsoat_binhluan.php?action=toggle_status&id=<?= $row['id'] ?>&current=<?= $row['trangthai'] ?>" 
-                                class="btn btn-sm <?= ($row['trangthai'] == '1' || $row['trangthai'] == 'Hiển thị') ? 'btn-outline-warning' : 'btn-outline-success' ?>" 
-                                title="<?= ($row['trangthai'] == '1' || $row['trangthai'] == 'Hiển thị') ? 'Ẩn bình luận này' : 'Hiện bình luận này' ?>">
-                                 <i class="fa-solid <?= ($row['trangthai'] == '1' || $row['trangthai'] == 'Hiển thị') ? 'fa-eye-slash' : 'fa-eye' ?>"></i>
-                             </a>
+                              <?php if (($row['trangthai'] ?? '') === 'dangan'): ?>
+                            <a href="process_comment.php?id=<?= $row['id'] ?>&action=danghienthi" 
+                               onclick="return confirm('Bạn có chắc chắn muốn HIỂN THỊ bình luận này?')"
+                               style="background: #28a745; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px;">
+                               Hiển thị
+                            </a>
+                        <?php else: ?>
+                            <a href="process_comment.php?id=<?= $row['id'] ?>&action=dangan" 
+                               onclick="return confirm('Bạn có chắc chắn muốn Ẩn bình luận này?')"
+                               style="background: #dc3545; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px;">
+                               Ẩn
+                            </a>
+                        <?php endif; ?>
 
                              <!-- Nút Xóa bình luận có xác nhận -->
-                             <a href="admin.php?page=commentManagement&action=delete&id=<?= $row['id'] ?>" 
-                                class="btn btn-sm btn-outline-danger" 
+                             <a href="process_comment.php?action=delete&id=<?= $row['id'] ?>" 
+                                class="btn-icon btn-delete" 
                                 title="Xóa vĩnh viễn"
-                                onclick="return confirm('Bạn có chắc chắn muốn xóa vĩnh viễn bình luận này không?')">
-                                 <i class="fa-solid fa-trash"></i>
+                                onclick="return confirm('Bạn có chắc chắn muốn xóa vĩnh viễn bình luận này không vậy?')">
+                                Xóa
                              </a>
                          </div>
                     </td>
@@ -122,29 +119,58 @@ $result = mysqli_query($conn, $sql);
     </div>
 </div> 
 
-<!-- MODAL POPUP ADMIN TRẢ LỜI BÌNH LUẬN -->
-<div class="modal fade" id="modalTraLoiBinhLuan" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content rounded-3">
-      <div class="modal-header bg-success text-white">
-        <h5 class="modal-title fw-bold"><i class="fa-solid fa-reply me-2"></i>Trả lời bình luận</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <form action="xuly_traloibinhluan.php" method="POST">
-          <div class="modal-body p-4">
-            <input type="hidden" name="id_binhluan" id="reply_id_binhluan">
-            <div class="mb-3">
-                <label class="form-label fw-semibold">Nội dung phản hồi từ Admin:</label>
-                <textarea class="form-control" name="traloi_admin" id="reply_noidung" rows="4" placeholder="Nhập câu trả lời của shop..." required></textarea>
+<!-- MODAL TRẢ LỜI BÌNH LUẬN -->
+<div id="modalTraLoiBinhLuan" class="reply-modal">
+    <div class="reply-modal-content">
+
+        <div class="reply-modal-header">
+            <h3>
+                <i class="fa-solid fa-reply"></i>
+                Trả lời bình luận
+            </h3>
+
+            <button type="button" class="reply-close"
+                    onclick="closeReplyModal()">
+                &times;
+            </button>
+        </div>
+
+        <form action="process_comment.php" method="POST">
+
+            <div class="reply-modal-body">
+
+                <input type="hidden"
+                       name="id_binhluan"
+                       id="reply_id_binhluan">
+
+                <label for="reply_noidung">
+                    Nội dung phản hồi từ Admin:
+                </label>
+
+                <textarea
+                    name="phanhoi_admin"
+                    id="reply_noidung"
+                    rows="5"
+                    placeholder="Nhập câu trả lời của shop..."
+                    required></textarea>
+
             </div>
-          </div>
-          <div class="modal-footer bg-light">
-            <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Hủy</button>
-            <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold">Gửi phản hồi</button>
-          </div>
-      </form>
+
+            <div class="reply-modal-footer">
+                <button type="button"
+                        class="btn-cancel"
+                        onclick="closeReplyModal()">
+                    Hủy
+                </button>
+
+                <button type="submit" class="btn-submit" name="action" value="reply">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    Gửi phản hồi
+                </button>
+            </div>
+
+        </form>
     </div>
-  </div>
 </div>
 
 <!-- PHÂN TRANG -->
@@ -168,3 +194,193 @@ $result = mysqli_query($conn, $sql);
         </a>
     <?php } ?>
 </div>
+<script>
+// Hàm mở Modal Trả lời
+function openReplyModal(id, currentReply) {
+
+    document.getElementById('reply_id_binhluan').value = id;
+
+    document.getElementById('reply_noidung').value = currentReply;
+
+    document.getElementById('modalTraLoiBinhLuan').style.display = 'flex';
+}
+
+// Đóng Modal
+function closeReplyModal() {
+    document.getElementById('modalTraLoiBinhLuan').style.display = 'none';
+}
+
+// Bấm ra ngoài Modal để đóng
+document.getElementById('modalTraLoiBinhLuan').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeReplyModal();
+    }
+});
+
+// Nhấn ESC để đóng Modal
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeReplyModal();
+    }
+});
+</script>
+<style>
+    /* Lớp nền Modal */
+.reply-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+
+    justify-content: center;
+    align-items: center;
+
+    padding: 15px;
+}
+
+/* Nội dung Modal */
+.reply-modal-content {
+    background: #fff;
+    width: 100%;
+    max-width: 500px;
+    border-radius: 12px;
+    overflow: hidden;
+
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+
+    animation: modalShow 0.25s ease;
+}
+
+/* Hiệu ứng xuất hiện */
+@keyframes modalShow {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Header */
+.reply-modal-header {
+    background: #198754;
+    color: white;
+    padding: 16px 20px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.reply-modal-header h3 {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 600;
+}
+
+.reply-close {
+    border: none;
+    background: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+/* Body */
+.reply-modal-body {
+    padding: 25px 20px;
+}
+
+.reply-modal-body label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.reply-modal-body textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 12px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 14px;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.reply-modal-body textarea:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.12);
+}
+
+/* Footer */
+.reply-modal-footer {
+    background: #f8f9fa;
+    padding: 15px 20px;
+
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.reply-modal-footer button {
+    padding: 9px 18px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-cancel {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-submit {
+    background: #198754;
+    color: white;
+}
+
+.btn-cancel:hover {
+    background: #565e64;
+}
+
+.btn-submit:hover {
+    background: #146c43;
+}
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+}
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    background: #fff;
+    cursor: pointer;
+    text-decoration: none;
+    color: #43494f;
+    transition: all 0.2s;
+}
+.btn-reply { color: #0d6efd; border-color: #0d6efd; }
+.btn-reply:hover { background: #0d6efd; color: #fff; }
+.btn-reply.is-replied { background: #198754; color: #fff; border-color: #198754; }
+
+.btn-toggle { color: #fd7e14; border-color: #fd7e14; }
+.btn-toggle:hover { background: #fd7e14; color: #fff; }
+
+.btn-delete { color: #dc3545; border-color: #dc3545; }
+.btn-delete:hover { background: #dc3545; color: #fff; }
+</style>

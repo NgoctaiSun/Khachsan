@@ -42,7 +42,7 @@ $bookedRooms = [];
 $hasBooked = false;
 
 if (!empty($username)) {
-    $sqlBooked = "SELECT DISTINCT phong.id AS id_phong, phong.sophong 
+    $sqlBooked = "SELECT DISTINCT phong.id AS id_phong, phong.sophong ,   datphong.id AS id_datphong
                   FROM datphong 
                   JOIN taikhoan ON datphong.id_taikhoan = taikhoan.id
                   JOIN phong ON datphong.id_phong = phong.id
@@ -63,7 +63,7 @@ $commentsStmt = $conn->prepare("SELECT b.*, t.hoten
                                 FROM binhluan b 
                                 JOIN taikhoan t ON b.id_taikhoan = t.id 
                                 JOIN phong p ON b.id_phong = p.id 
-                                WHERE p.id_loaiphong = ? 
+                                WHERE p.id_loaiphong = ? and b.trangthai = 'danghienthi'
                                 ORDER BY b.id DESC");
 $commentsStmt->bind_param("i", $id);
 $commentsStmt->execute();
@@ -252,20 +252,30 @@ $comments = $commentsStmt->get_result();
                             </ul>
                         </div>
 
-                        <form action="process_comment.php" method="POST">
+                        <form action="admin/process_comment.php" method="POST">
                             <input type="hidden" name="id_loaiphong" value="<?= $room['id'] ?>">
 
                             <div style="margin-bottom: 10px;">
                                 <label style="font-size: 13px; font-weight: bold; color: #333; display: block; margin-bottom: 5px;">Chọn phòng cụ thể bạn muốn đánh giá:</label>
-                                <select name="id_phong" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd;" required>
-                                    <option value="">-- Chọn phòng --</option>
-                                    <?php
-                                    $bookedRooms->data_seek(0);
-                                    while ($bRoom = $bookedRooms->fetch_assoc()):
-                                    ?>
-                                        <option value="<?= $bRoom['id_phong'] ?>">Phòng <?= htmlspecialchars($bRoom['sophong']) ?></option>
-                                    <?php endwhile; ?>
-                                </select>
+                                <select name="id_phong" id="chon_phong" required>
+    <option value="">-- Chọn phòng --</option>
+
+    <?php
+    $bookedRooms->data_seek(0);
+
+    while ($bRoom = $bookedRooms->fetch_assoc()):
+    ?>
+        <option 
+            value="<?= $bRoom['id_phong'] ?>"
+            data-datphong="<?= $bRoom['id_datphong'] ?>">
+
+            Phòng <?= htmlspecialchars($bRoom['sophong']) ?>
+
+        </option>
+    <?php endwhile; ?>
+</select>
+
+<input type="hidden" name="id_datphong" id="id_datphong">
                             </div>
 
                             <div class="stars-input">
@@ -278,7 +288,7 @@ $comments = $commentsStmt->get_result();
 
                             <textarea name="noidung" placeholder="Cảm nhận của bạn về chuyến đi này..." style="width:100%; height:80px; padding:10px; border-radius:5px; border:1px solid #ddd; box-sizing: border-box; font-family: inherit;" required></textarea>
                             
-                            <button type="submit" style="width:100%; margin-top: 10px; padding: 10px; background:#007bff; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">Gửi nhận xét</button>
+                            <button type="submit" name="action" value="binhluan" style="width:100%; margin-top: 10px; padding: 10px; background:#007bff; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">Gửi nhận xét</button>
                         </form>
                     <?php else: ?>
                         <div style="background: #fffbeb; border: 1px solid #fde68a; padding: 15px; border-radius: 8px; text-align: center;">
@@ -316,3 +326,11 @@ $comments = $commentsStmt->get_result();
 
     </div>
 </div>
+<script>document.getElementById('chon_phong').addEventListener('change', function() {
+
+    let selected = this.options[this.selectedIndex];
+
+    document.getElementById('id_datphong').value =
+        selected.dataset.datphong || '';
+
+});</script>
