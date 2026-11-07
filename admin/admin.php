@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../css/UI.css?v=2">
+    <link rel="stylesheet" href="../css/UI.css?v=3">
     <link rel="stylesheet" href="../css/page.css">
     <link rel="stylesheet" href="../css/UI_KT.css">
     <script src="/Khachsan/function.js?v=2"></script>
@@ -15,7 +15,7 @@
 <body>
     <div class="admin-card">
         <nav class="nav-admin">
-            <h1>Quản trị</h1>
+            <h1>Tổng quan</h1>
             <ul>
                 <?php if (in_array($_SESSION['role'], ['admin', 'letan'])): ?>
                     <li> <a href="admin.php?page=userManagement">Quản lý người dùng</a></li>

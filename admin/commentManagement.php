@@ -67,15 +67,15 @@ $result = mysqli_query($conn, $sql);
                     <td>
                          <p class="mb-1 text-muted small" style="max-width: 300px;"><?= htmlspecialchars($row['noidung'] ?? '') ?></p>
                                     
-                         <?php if (!empty($row['traloi_admin'])): ?>
+                         <?php if (!empty($row['phanhoi_admin'])): ?>
                              <div class="p-2 bg-light border-start border-3 border-success rounded text-dark small mt-1">
-                                 <strong class="text-success"><i class="fa-solid fa-reply me-1"></i>Admin:</strong> <?= htmlspecialchars($row['traloi_admin']) ?>
+                                 <strong class="text-success"><i class="fa-solid fa-reply me-1"></i>Admin:</strong> <?= htmlspecialchars($row['phanhoi_admin']) ?>
                              </div>
                          <?php endif; ?>
                     </td>
                     <td>
                         <span class="text-warning fw-bold">
-                            <?= htmlspecialchars($row['sosao'] ?? '') ?> <i class="fa-solid fa-star text-warning"></i>
+                            <?= htmlspecialchars($row['sao'] ?? '') ?> <i class="fa-solid fa-star text-warning"></i>
                         </span>
                     </td>
                     <td><?= htmlspecialchars($row['trangthai'] ?? '') ?></td>
@@ -85,7 +85,7 @@ $result = mysqli_query($conn, $sql);
                              <button type="button" class="btn-icon btn-reply" style="width:15px;"
                                      onclick="openReplyModal(<?= $row['id'] ?>, '<?= htmlspecialchars(addslashes($row['traloi_admin'] ?? '')) ?>')"
                                      title="Trả lời bình luận">
-                                 <i class="fa-solid fa-reply"></i>
+↩️
                              </button>
 
                              <!-- Nút Ẩn / Hiện bình luận -->
@@ -152,7 +152,7 @@ $result = mysqli_query($conn, $sql);
                     id="reply_noidung"
                     rows="5"
                     placeholder="Nhập câu trả lời của shop..."
-                    required></textarea>
+                    ></textarea>
 
             </div>
 

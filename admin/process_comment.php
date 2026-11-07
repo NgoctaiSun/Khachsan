@@ -36,7 +36,7 @@ elseif ( $action === 'delete' && isset($_GET['id'])) {
 elseif($action === 'reply' && isset($_POST['id_binhluan'])) {
     $id_binhluan = (int)$_POST['id_binhluan'];
     $phanhoi_admin = mysqli_real_escape_string($conn, $_POST['phanhoi_admin']);
-    $update_sql = "UPDATE binhluan SET phanhoi_admin = '$phanhoi_admin', ngay_phanhoi = NOW() WHERE id = $id_binhluan";
+    $update_sql = "UPDATE binhluan SET phanhoi_admin = '$phanhoi_admin', ngayphanhoi = NOW() WHERE id = $id_binhluan";
     if (mysqli_query($conn, $update_sql)) {
         header("Location: admin.php?page=commentManagement&msg=success");
         exit();

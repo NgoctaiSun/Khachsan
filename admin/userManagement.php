@@ -127,7 +127,7 @@ $result = mysqli_query($conn, $sql);
                 <tr>
                     <th>ID</th>
                     <th>Tên khách hàng</th>
-                    <th>Sđt</th>
+                    <th>Số điện thoại</th>
                     <th>Địa chỉ</th>
                     <th>Email</th>
                     <th>Ngày đăng ký</th>

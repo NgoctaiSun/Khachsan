@@ -77,17 +77,25 @@ $comments = $commentsStmt->get_result();
         justify-content: flex-end;
         margin-bottom: 10px;
     }
-    .stars-input input { display: none; }
+
+    .stars-input input {
+        display: none;
+    }
+
     .stars-input label {
         cursor: pointer;
         font-size: 25px;
         color: #ddd;
         transition: 0.2s;
     }
-    .stars-input label:before { content: '★'; }
-    .stars-input input:checked ~ label,
+
+    .stars-input label:before {
+        content: '★';
+    }
+
+    .stars-input input:checked~label,
     .stars-input label:hover,
-    .stars-input label:hover ~ label {
+    .stars-input label:hover~label {
         color: #ffca08;
     }
 </style>
@@ -96,16 +104,16 @@ $comments = $commentsStmt->get_result();
 
     <!-- BREADCRUMB -->
     <div style="margin-bottom: 20px; font-size: 14px; color: #64748b;">
-        <a href="index.php?page=home" style="color: #64748b; text-decoration: none;">Trang chủ</a> &nbsp;/&nbsp; 
-        <a href="index.php?page=rooms" style="color: #64748b; text-decoration: none;">Danh sách phòng</a> &nbsp;/&nbsp; 
+        <a href="index.php?page=home" style="color: #64748b; text-decoration: none;">Trang chủ</a> &nbsp;/&nbsp;
+        <a href="index.php?page=rooms" style="color: #64748b; text-decoration: none;">Danh sách phòng</a> &nbsp;/&nbsp;
         <strong style="color: #0f172a;"><?= htmlspecialchars($room['tenphong']) ?></strong>
     </div>
 
     <!-- KHUNG CHI TIẾT TỔNG THỂ -->
     <div style="background: #ffffff; border-radius: 20px; padding: 35px; box-shadow: 0 10px 30px rgba(0,0,0,0.08);">
-        
+
         <div style="display: flex; gap: 40px; flex-wrap: wrap;">
-            
+
             <!-- CỘT TRÁI: BỘ BỘ ẢNH GALLERY -->
             <div style="flex: 1.2; min-width: 320px;">
                 <div style="width: 100%; height: 380px; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.1); margin-bottom: 15px;">
@@ -136,7 +144,7 @@ $comments = $commentsStmt->get_result();
                     </div>
 
                     <h1 style="font-size: 32px; color: #0f172a; margin: 10px 0; font-weight: 800;"><?= htmlspecialchars($room['tenphong']) ?></h1>
-                    
+
                     <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; display: inline-block;">
                         <span style="font-size: 12px; color: #64748b; display: block; text-transform: uppercase; letter-spacing: 0.5px;">Giá niêm yết ưu đãi</span>
                         <strong style="font-size: 30px; color: #c5a059;"><?= number_format($finalPrice, 0, ',', '.') ?></strong>
@@ -187,7 +195,7 @@ $comments = $commentsStmt->get_result();
 
                 <!-- NÚT ĐẶT PHÒNG KHÁCH HÀNG -->
                 <div>
-                    <?php if(isset($_SESSION['user'])): ?>
+                    <?php if (isset($_SESSION['user'])): ?>
                         <a class="btn-solid-gold" style="display: block; text-align: center; padding: 16px 30px; font-size: 16px; width: 100%; border-radius: 12px; font-weight: bold; background: #b38b4d; color: #fff; text-decoration: none;" href="index.php?page=booking&id=<?= (int)$room['id'] ?>">Đặt Phòng Ngay Này</a>
                     <?php else: ?>
                         <a class="btn-solid-gold" style="display: block; text-align: center; padding: 16px 30px; font-size: 16px; width: 100%; border-radius: 12px; font-weight: bold; background: #b38b4d; color: #fff; text-decoration: none;" href="index.php?page=login">Đăng Nhập Để Đặt Phòng</a>
@@ -258,24 +266,24 @@ $comments = $commentsStmt->get_result();
                             <div style="margin-bottom: 10px;">
                                 <label style="font-size: 13px; font-weight: bold; color: #333; display: block; margin-bottom: 5px;">Chọn phòng cụ thể bạn muốn đánh giá:</label>
                                 <select name="id_phong" id="chon_phong" required>
-    <option value="">-- Chọn phòng --</option>
+                                    <option value="">-- Chọn phòng --</option>
 
-    <?php
-    $bookedRooms->data_seek(0);
+                                    <?php
+                                    $bookedRooms->data_seek(0);
 
-    while ($bRoom = $bookedRooms->fetch_assoc()):
-    ?>
-        <option 
-            value="<?= $bRoom['id_phong'] ?>"
-            data-datphong="<?= $bRoom['id_datphong'] ?>">
+                                    while ($bRoom = $bookedRooms->fetch_assoc()):
+                                    ?>
+                                        <option
+                                            value="<?= $bRoom['id_phong'] ?>"
+                                            data-datphong="<?= $bRoom['id_datphong'] ?>">
 
-            Phòng <?= htmlspecialchars($bRoom['sophong']) ?>
+                                            Phòng <?= htmlspecialchars($bRoom['sophong']) ?>
 
-        </option>
-    <?php endwhile; ?>
-</select>
+                                        </option>
+                                    <?php endwhile; ?>
+                                </select>
 
-<input type="hidden" name="id_datphong" id="id_datphong">
+                                <input type="hidden" name="id_datphong" id="id_datphong">
                             </div>
 
                             <div class="stars-input">
@@ -287,7 +295,7 @@ $comments = $commentsStmt->get_result();
                             </div>
 
                             <textarea name="noidung" placeholder="Cảm nhận của bạn về chuyến đi này..." style="width:100%; height:80px; padding:10px; border-radius:5px; border:1px solid #ddd; box-sizing: border-box; font-family: inherit;" required></textarea>
-                            
+
                             <button type="submit" name="action" value="binhluan" style="width:100%; margin-top: 10px; padding: 10px; background:#007bff; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">Gửi nhận xét</button>
                         </form>
                     <?php else: ?>
@@ -303,7 +311,7 @@ $comments = $commentsStmt->get_result();
             </div>
 
             <!-- CỘT DANH SÁCH BÌNH LUẬN -->
-            <div style="flex: 1.5; min-width: 300px;">
+            <div style="flex: 1.5; min-width: 300px; ">
                 <h3 style="font-size: 18px; color: #0f172a; margin-bottom: 15px;">💬 Đánh Giá Từ Khách Hàng</h3>
                 <?php if ($comments && $comments->num_rows > 0): ?>
                     <div style="display: flex; flex-direction: column; gap: 15px;">
@@ -316,7 +324,23 @@ $comments = $commentsStmt->get_result();
                                 <p style="font-size: 14px; color: #475569; margin: 5px 0;"><?= htmlspecialchars($c['noidung']) ?></p>
                                 <small style="color: #94a3b8; font-size: 12px;"><?= date("d/m/Y H:i", strtotime($c['ngaybinhluan'])) ?></small>
                             </div>
+                            <?php if (!empty($c['phanhoi_admin'])): ?>
+                                <div class="mt-2 p-3 bg-light border-start border-4 border-success rounded-3 shadow-sm ms-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="fw-bold text-success small">
+                                            <i class="fa-solid fa-user-shield me-1"></i>Phản hồi từ Quản trị viên
+                                        </span>
+                                        <?php if (!empty($c['ngayphanhoi'])): ?>
+                                            <span class="text-muted" style="font-size: 11px;">
+                                                <i class="fa-regular fa-clock me-1"></i><?= date("d/m/Y H:i", strtotime($c['ngayphanhoi'])) ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <p class="mb-0 text-dark small" style="line-height: 1.5;"><?= nl2br(htmlspecialchars($c['phanhoi_admin'])) ?></p>
+                                </div>
+                            <?php endif; ?>
                         <?php endwhile; ?>
+
                     </div>
                 <?php else: ?>
                     <p style="color: #64748b; font-size: 14px; font-style: italic;">Chưa có bình luận nào cho loại phòng này. Hãy trải nghiệm và là người đầu tiên đánh giá!</p>
@@ -326,11 +350,13 @@ $comments = $commentsStmt->get_result();
 
     </div>
 </div>
-<script>document.getElementById('chon_phong').addEventListener('change', function() {
+<script>
+    document.getElementById('chon_phong').addEventListener('change', function() {
 
-    let selected = this.options[this.selectedIndex];
+        let selected = this.options[this.selectedIndex];
 
-    document.getElementById('id_datphong').value =
-        selected.dataset.datphong || '';
+        document.getElementById('id_datphong').value =
+            selected.dataset.datphong || '';
 
-});</script>
+    });
+</script>

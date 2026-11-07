@@ -8,6 +8,7 @@
             padding: 10px;
             border-radius: 5px;
             margin-bottom: 20px;
+            font-size: 21px;
         }
         .nav-admin ul {
             list-style-type: none;
@@ -24,7 +25,7 @@
             color: #007bff;
         }
         .admin-content {
-            width: 70%;
+            width: 90%;
             padding: 10px;
         }
 /* 2. Kẻ bảng cho admin */
