@@ -1,74 +1,305 @@
+
 <?php
+if (session_status() === PHP_SESSION_NONE) session_start();
 require_once __DIR__ . '/../connect.php';
-if (session_status()===PHP_SESSION_NONE) session_start();
-if (!isset($_SESSION['user_id'])) { header('Location: index.php?page=login'); exit; }
 
-$typeId=(int)($_GET['id']??0);
-$s=$conn->prepare("SELECT lp.*, COALESCE(gg.phantram,0) AS phantram FROM loaiphong lp LEFT JOIN giamgia gg ON gg.id_loaiphong=lp.id AND gg.trangthai=1 AND CURDATE() BETWEEN gg.ngaybatdau AND gg.ngayketthuc WHERE lp.id=? LIMIT 1");
-$s->bind_param("i",$typeId); $s->execute(); $room=$s->get_result()->fetch_assoc();
-if(!$room){ header('Location:index.php?page=rooms'); exit; }
+if (!isset($_SESSION['id'])) {
+    header('Location: index.php?page=login');
+    exit;
+}
 
-$message='';
-if($_SERVER['REQUEST_METHOD']==='POST'){
-    $roomId=(int)($_POST['id_phong']??0);
-    $checkIn=$_POST['ngaynhan']??'';
-    $checkOut=$_POST['ngaytra']??'';
-    $guests=(int)($_POST['sokhach']??1);
-    $note=trim($_POST['ghichu']??'');
+$userId = (int)$_SESSION['id'];
+$typeId = (int)($_GET['id'] ?? 0);
 
-    if($roomId<=0 || $checkIn==='' || $checkOut==='' || $checkOut <= $checkIn || $guests<1 || $guests>(int)$room['sokhach']){
-        $message='<div class="notice error">Vui lòng chọn phòng, ngày và số khách hợp lệ.</div>';
+$stmt = $conn->prepare("SELECT * FROM loaiphong WHERE id=? LIMIT 1");
+$stmt->bind_param("i", $typeId);
+$stmt->execute();
+$type = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+
+if (!$type) {
+    echo '<div class="hh-alert hh-error">Không tìm thấy loại phòng.</div>';
+    return;
+}
+
+$message = '';
+$old = [
+    'id_phong' => '',
+    'ngaynhan' => '',
+    'ngaytra' => '',
+    'sokhach' => 1,
+    'ghichu' => ''
+];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    foreach ($old as $key => $value) {
+        $old[$key] = $_POST[$key] ?? $value;
+    }
+
+    $roomId = (int)$old['id_phong'];
+    $checkIn = $old['ngaynhan'];
+    $checkOut = $old['ngaytra'];
+    $guests = (int)$old['sokhach'];
+    $note = trim($old['ghichu']);
+
+    $inDate = DateTime::createFromFormat('Y-m-d', $checkIn);
+    $outDate = DateTime::createFromFormat('Y-m-d', $checkOut);
+    $today = new DateTime('today');
+
+    if (!$inDate || !$outDate || $inDate < $today || $outDate <= $inDate) {
+        $message = '<div class="hh-alert hh-error">Ngày nhận hoặc ngày trả không hợp lệ.</div>';
+    } elseif ($guests < 1 || $guests > (int)$type['sokhach']) {
+        $message = '<div class="hh-alert hh-error">Số khách vượt quá sức chứa của loại phòng.</div>';
     } else {
-        $p=$conn->prepare("SELECT p.*, lp.gia, lp.sokhach, COALESCE(gg.phantram,0) AS phantram
-            FROM phong p JOIN loaiphong lp ON lp.id=p.id_loaiphong
-            LEFT JOIN giamgia gg ON gg.id_loaiphong=lp.id AND gg.trangthai=1 AND CURDATE() BETWEEN gg.ngaybatdau AND gg.ngayketthuc
-            WHERE p.id=? AND p.id_loaiphong=? AND p.trangthai NOT IN ('Da dat','Bao tri')
-            AND NOT EXISTS (SELECT 1 FROM datphong d WHERE d.id_phong=p.id AND d.trangthai NOT IN ('Huy','Đã hủy') AND d.ngaynhan < ? AND d.ngaytra > ?)
-            LIMIT 1");
-        $p->bind_param("iiss",$roomId,$typeId,$checkOut,$checkIn); $p->execute(); $selected=$p->get_result()->fetch_assoc();
-        if(!$selected){
-            $message='<div class="notice error">Phòng không tồn tại, đang bảo trì hoặc đã có người đặt trong khoảng thời gian này.</div>';
+        $check = $conn->prepare("
+            SELECT p.id, p.sophong, p.tang, lp.gia, lp.sokhach
+            FROM phong p
+            JOIN loaiphong lp ON lp.id=p.id_loaiphong
+            WHERE p.id=? AND p.id_loaiphong=?
+              AND LOWER(TRIM(p.trangthai)) IN ('trong','trống')
+              AND NOT EXISTS (
+                SELECT 1 FROM datphong d
+                WHERE d.id_phong=p.id
+                  AND d.trangthai NOT IN ('Huy','Đã hủy','Hoan tat')
+                  AND d.ngaynhan < ?
+                  AND d.ngaytra > ?
+              )
+            LIMIT 1
+        ");
+        $check->bind_param("iiss", $roomId, $typeId, $checkOut, $checkIn);
+        $check->execute();
+        $selected = $check->get_result()->fetch_assoc();
+        $check->close();
+
+        if (!$selected) {
+            $message = '<div class="hh-alert hh-error">Phòng không còn trống trong thời gian bạn chọn. Vui lòng chọn phòng hoặc ngày khác.</div>';
         } else {
-            $days=(new DateTime($checkIn))->diff(new DateTime($checkOut))->days;
-            $discount=(float)($selected['phantram'] ?? 0);
-            $price=(float)$selected['gia']*(1-$discount/100);
-            $total=(int)round($days*$price);
-            $status='Cho xac nhan';
-            $now=date('Y-m-d H:i:s');
-            $insert=$conn->prepare("INSERT INTO datphong(id_taikhoan,id_phong,ngaynhan,ngaytra,sokhach,tongtien,trangthai,thoigiandat,ghichu) VALUES(?,?,?,?,?,?,?,?,?)");
-            $insert->bind_param("iissiiiss",$_SESSION['user_id'],$roomId,$checkIn,$checkOut,$guests,$total,$status,$now,$note);
-            if($insert->execute()) $message='<div class="notice success">Đặt phòng thành công. Mã đặt phòng: #'.$insert->insert_id.'</div>';
-            else $message='<div class="notice error">Không thể tạo đơn đặt phòng: '.htmlspecialchars($insert->error).'</div>';
+            $nights = (int)$inDate->diff($outDate)->days;
+            $unitPrice = (float)$selected['gia'];
+            $discountRate = 0;
+
+            // Khuyến mãi trong database dùng dạng tỷ lệ:
+            // 0.99 tương đương giảm 99%.
+            $promo = $conn->prepare("
+                SELECT phantramgiamgia
+                FROM khuyenmai
+                WHERE id_loaiphong=? AND trangthai='dangapdung'
+                  AND dem<=?
+                ORDER BY phantramgiamgia DESC
+                LIMIT 1
+            ");
+            if ($promo) {
+                $promo->bind_param("ii", $typeId, $nights);
+                $promo->execute();
+                $promoRow = $promo->get_result()->fetch_assoc();
+                if ($promoRow) {
+                    $discountRate = max(0, min(1, (float)$promoRow['phantramgiamgia']));
+                }
+                $promo->close();
+            }
+
+            $total = (int)round($nights * $unitPrice * (1 - $discountRate));
+            $status = 'Cho xac nhan';
+            $createdAt = date('Y-m-d H:i:s');
+
+            // Kiểm tra lần cuối trước khi ghi đơn để tránh đặt trùng.
+            $insert = $conn->prepare("
+                INSERT INTO datphong
+                (id_taikhoan,id_phong,ngaynhan,ngaytra,sokhach,tongtien,trangthai,thoigiandat,ghichu)
+                VALUES (?,?,?,?,?,?,?,?,?)
+            ");
+            $insert->bind_param(
+                "iissiisss",
+                $userId,
+                $roomId,
+                $checkIn,
+                $checkOut,
+                $guests,
+                $total,
+                $status,
+                $createdAt,
+                $note
+            );
+
+            if ($insert->execute()) {
+                $bookingId = $insert->insert_id;
+                $message = '<div class="hh-alert hh-success">Đặt phòng thành công! Mã đặt phòng của bạn là <strong>#' . $bookingId . '</strong>. Vui lòng chờ khách sạn xác nhận.</div>';
+                $old = ['id_phong'=>'','ngaynhan'=>'','ngaytra'=>'','sokhach'=>1,'ghichu'=>''];
+            } else {
+                $message = '<div class="hh-alert hh-error">Không thể tạo đơn đặt phòng. Vui lòng thử lại.</div>';
+            }
+            $insert->close();
         }
     }
 }
 
-$rooms=$conn->prepare("SELECT * FROM phong WHERE id_loaiphong=? AND trangthai NOT IN ('Da dat','Bao tri') ORDER BY sophong");
-$rooms->bind_param("i",$typeId); $rooms->execute(); $available=$rooms->get_result();
+$roomStmt = $conn->prepare("
+    SELECT p.id,p.sophong,p.tang
+    FROM phong p
+    WHERE p.id_loaiphong=?
+      AND LOWER(TRIM(p.trangthai)) IN ('trong','trống')
+    ORDER BY p.sophong
+");
+$roomStmt->bind_param("i", $typeId);
+$roomStmt->execute();
+$roomList = $roomStmt->get_result();
+$roomOptions = [];
+while ($r = $roomList->fetch_assoc()) $roomOptions[] = $r;
+$roomStmt->close();
+
+include __DIR__ . '/header.php';
 ?>
-<?php include __DIR__ . '/header.php'; ?>
-<div class="page-wrap">
-    <div class="profile-card">
-        <div class="section-title"><h2>Đặt phòng: <?= htmlspecialchars($room['tenphong']) ?></h2></div>
-        <?= $message ?>
-        <form method="post">
-            <label>Phòng *</label>
-            <select class="form-control" name="id_phong" required>
-                <option value="">-- Chọn phòng --</option>
-                <?php while($p=$available->fetch_assoc()): ?>
-                    <option value="<?= $p['id'] ?>">Phòng <?= htmlspecialchars($p['sophong']) ?> - Tầng <?= htmlspecialchars($p['tang']) ?></option>
-                <?php endwhile; ?>
-            </select>
-            <label>Ngày nhận *</label>
-            <input class="form-control" type="date" name="ngaynhan" required min="<?= date('Y-m-d') ?>">
-            <label>Ngày trả *</label>
-            <input class="form-control" type="date" name="ngaytra" required min="<?= date('Y-m-d') ?>">
-            <label>Số khách *</label>
-            <input class="form-control" type="number" name="sokhach" min="1" max="<?= (int)$room['sokhach'] ?>" value="1" required>
-            <label>Ghi chú</label>
-            <textarea class="form-control" name="ghichu" rows="4"></textarea>
-            <button class="btn" type="submit">Xác nhận đặt phòng</button>
+
+<div class="hh-page">
+    <div class="hh-page-heading">
+        <div>
+            <span class="hh-eyebrow">HARMONY HOTEL</span>
+            <h1>Đặt phòng của bạn</h1>
+            <p>Vui lòng điền thông tin để chúng tôi chuẩn bị kỳ nghỉ tốt nhất.</p>
+        </div>
+    </div>
+
+    <?= $message ?>
+
+    <div class="hh-card hh-booking-card">
+        <div class="hh-booking-intro">
+            <div>
+                <span class="hh-eyebrow">ROOM SELECTION</span>
+                <h2><?= htmlspecialchars($type['tenphong']) ?></h2>
+                <p><?= htmlspecialchars($type['mota']) ?></p>
+            </div>
+            <div class="hh-booking-price">
+                <span>Giá mỗi đêm</span>
+                <strong><?= number_format((float)$type['gia'],0,',','.') ?>đ</strong>
+            </div>
+        </div>
+
+        <?php if (!$roomOptions): ?>
+            <div class="hh-alert hh-error">Hiện không có phòng trống thuộc loại phòng này. Vui lòng quay lại sau.</div>
+        <?php else: ?>
+        <form method="post" id="bookingForm" class="hh-form">
+            <div class="hh-form-grid">
+                <div class="hh-field">
+                    <label>Chọn số phòng</label>
+                    <select name="id_phong" id="bookingRoom" required>
+                        <option value="">-- Chọn phòng --</option>
+                        <?php foreach ($roomOptions as $r): ?>
+                            <option value="<?= (int)$r['id'] ?>"
+                                <?= (string)$old['id_phong']===(string)$r['id']?'selected':'' ?>>
+                                Phòng <?= htmlspecialchars($r['sophong']) ?> - Tầng <?= (int)$r['tang'] ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="hh-field">
+                    <label>Số khách</label>
+                    <input type="number" name="sokhach" id="bookingGuests"
+                           min="1" max="<?= (int)$type['sokhach'] ?>"
+                           value="<?= (int)$old['sokhach'] ?>" required>
+                    <small>Sức chứa tối đa: <?= (int)$type['sokhach'] ?> khách</small>
+                </div>
+                <div class="hh-field">
+                    <label>Ngày nhận phòng</label>
+                    <input type="date" name="ngaynhan" id="bookingCheckin"
+                           min="<?= date('Y-m-d') ?>" value="<?= htmlspecialchars($old['ngaynhan']) ?>" required>
+                </div>
+                <div class="hh-field">
+                    <label>Ngày trả phòng</label>
+                    <input type="date" name="ngaytra" id="bookingCheckout"
+                           min="<?= date('Y-m-d',strtotime('+1 day')) ?>"
+                           value="<?= htmlspecialchars($old['ngaytra']) ?>" required>
+                </div>
+                <div class="hh-field hh-field-full">
+                    <label>Yêu cầu đặc biệt</label>
+                    <textarea name="ghichu" id="bookingNote" rows="4"
+                              placeholder="Ví dụ: phòng không hút thuốc, tầng cao..."><?= htmlspecialchars($old['ghichu']) ?></textarea>
+                </div>
+            </div>
+
+            <div class="hh-booking-actions">
+                <a href="index.php?page=rooms" class="hh-btn hh-btn-light">Quay lại</a>
+                <button type="button" class="hh-btn hh-btn-primary" id="reviewBooking">
+                    Kiểm tra thông tin đặt phòng
+                </button>
+            </div>
         </form>
+        <?php endif; ?>
     </div>
 </div>
+
+<div class="hh-modal" id="bookingModal" aria-hidden="true">
+    <div class="hh-modal-box">
+        <button type="button" class="hh-modal-close" data-close-modal>&times;</button>
+        <span class="hh-eyebrow">CONFIRM YOUR BOOKING</span>
+        <h2>Xác nhận thông tin đặt phòng</h2>
+        <p class="hh-modal-subtitle">Vui lòng kiểm tra lại trước khi gửi yêu cầu.</p>
+        <div class="hh-confirm-list">
+            <div><span>Loại phòng</span><strong><?= htmlspecialchars($type['tenphong']) ?></strong></div>
+            <div><span>Số phòng</span><strong id="confirmRoom">—</strong></div>
+            <div><span>Ngày nhận</span><strong id="confirmIn">—</strong></div>
+            <div><span>Ngày trả</span><strong id="confirmOut">—</strong></div>
+            <div><span>Số đêm</span><strong id="confirmNights">—</strong></div>
+            <div><span>Số khách</span><strong id="confirmGuests">—</strong></div>
+            <div class="hh-confirm-total"><span>Tạm tính</span><strong id="confirmTotal">—</strong></div>
+        </div>
+        <div class="hh-modal-actions">
+            <button type="button" class="hh-btn hh-btn-light" data-close-modal>Quay lại chỉnh sửa</button>
+            <button type="button" class="hh-btn hh-btn-primary" id="submitBooking">Xác nhận đặt phòng</button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function(){
+    const form = document.getElementById('bookingForm');
+    if (!form) return;
+
+    const modal = document.getElementById('bookingModal');
+    const room = document.getElementById('bookingRoom');
+    const checkin = document.getElementById('bookingCheckin');
+    const checkout = document.getElementById('bookingCheckout');
+    const guests = document.getElementById('bookingGuests');
+    const price = <?= json_encode((float)$type['gia']) ?>;
+
+    document.getElementById('reviewBooking').addEventListener('click', function(){
+        if (!form.reportValidity()) return;
+
+        const start = new Date(checkin.value + 'T00:00:00');
+        const end = new Date(checkout.value + 'T00:00:00');
+        const nights = Math.round((end-start)/86400000);
+
+        if (nights <= 0) {
+            alert('Ngày trả phòng phải sau ngày nhận phòng.');
+            return;
+        }
+
+        const option = room.options[room.selectedIndex];
+        document.getElementById('confirmRoom').textContent = option.text;
+        document.getElementById('confirmIn').textContent = checkin.value;
+        document.getElementById('confirmOut').textContent = checkout.value;
+        document.getElementById('confirmNights').textContent = nights + ' đêm';
+        document.getElementById('confirmGuests').textContent = guests.value + ' khách';
+        document.getElementById('confirmTotal').textContent =
+            (nights * price).toLocaleString('vi-VN') + 'đ (chưa trừ khuyến mãi)';
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden','false');
+    });
+
+    document.getElementById('submitBooking').addEventListener('click', function(){
+        form.submit();
+    });
+
+    modal.querySelectorAll('[data-close-modal]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            modal.classList.remove('is-open');
+            modal.setAttribute('aria-hidden','true');
+        });
+    });
+
+    checkout.addEventListener('change', function(){
+        if (checkin.value) checkout.min = checkin.value;
+    });
+})();
+</script>
+
 <?php include __DIR__ . '/footer.php'; ?>
