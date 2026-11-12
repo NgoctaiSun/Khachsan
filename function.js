@@ -1,42 +1,49 @@
-console.log("function.js đã chạy");
-// Hàm hiển thị mật khẩu
+
+console.log("Harmony Hotel - Function loaded");
+
+// Hiển thị / ẩn mật khẩu
 function hienMatKhau() {
-    let mk = document.getElementById('password');
-
-    if (!mk) return;
-
-    if (mk.type === 'password') {
-        mk.type = 'text';
-    } else {
-        mk.type = 'password';
-    }
+    const password = document.getElementById('password');
+    if (!password) return;
+    password.type = password.type === 'password' ? 'text' : 'password';
 }
-// Hàm hiển thị popup
-document.addEventListener("DOMContentLoaded", function () {
 
-    let btn = document.getElementById("btn");
-    let popup = document.getElementById("popup");
-    let btnClose = document.getElementById("btnClose");
-    let btnCloseX = document.getElementById("btnCloseX");
+document.addEventListener('DOMContentLoaded', function () {
+
+    // Popup khuyến mãi cũ
+    const btn = document.getElementById('btn');
+    const popup = document.getElementById('popup');
+    const btnClose = document.getElementById('btnClose');
+    const btnCloseX = document.getElementById('btnCloseX');
 
     if (btn && popup) {
-        btn.onclick = function () {
-            popup.style.display = "flex";
-        };
+        btn.addEventListener('click', () => popup.style.display = 'flex');
     }
 
-    function hidePopup() {
-        if (popup) {
-            popup.style.display = "none";
+    function hidePromotionPopup() {
+        if (popup) popup.style.display = 'none';
+    }
+
+    if (btnClose) btnClose.addEventListener('click', hidePromotionPopup);
+    if (btnCloseX) btnCloseX.addEventListener('click', hidePromotionPopup);
+
+    // Popup xác nhận thao tác quản trị
+    document.querySelectorAll('form[data-confirm]').forEach(function(form) {
+        form.addEventListener('submit', function(event) {
+            const message = form.getAttribute('data-confirm') || 'Bạn có chắc chắn muốn thực hiện thao tác này?';
+            if (!window.confirm(message)) {
+                event.preventDefault();
+            }
+        });
+    });
+
+    // Đóng popup khi nhấn ESC
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            document.querySelectorAll('.hh-modal.is-open').forEach(function(modal) {
+                modal.classList.remove('is-open');
+                modal.setAttribute('aria-hidden', 'true');
+            });
         }
-    }
-
-    if (btnClose) {
-        btnClose.onclick = hidePopup;
-    }
-
-    if (btnCloseX) {
-        btnCloseX.onclick = hidePopup;
-    }
-
+    });
 });
