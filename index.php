@@ -6,6 +6,7 @@
     <title>Document</title>
         <link rel="stylesheet" href="css/hotel.css">
         <link rel="stylesheet" href="css/UI.css?v=2">
+        <link rel="stylesheet" href="css/harmony-admin.css">
     <style>
         body {
            min-height: 100vh;

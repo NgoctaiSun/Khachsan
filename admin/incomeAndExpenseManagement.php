@@ -8,21 +8,49 @@ checkRole(['ketoan', 'admin']);
 
 $message = '';
 
-// 1. Xử lý thêm giao dịch thu/chi (Bước 5, 6, 7, 8)
+// =========================================================================
+// TỰ ĐỘNG ĐỒNG BỘ DỮ LIỆU TỪ BẢNG DATPHONG SANG BẢNG THUCHI
+// =========================================================================
+// Lưu ý: Hãy kiểm tra lại tên cột giá tiền (vd: tongtien) và giá trị chuỗi trong cột trangthai/vaitro cho khớp với DB của bạn
+$sql_sync = "
+    INSERT INTO thuchi (loaiphieu, sotien, noidung, thoigian, id_taikhoan, id_datphong)
+    SELECT 
+        'thu' AS loaiphieu,
+        dp.tongtien AS sotien,
+        CONCAT('Thu tiền đặt phòng #', dp.id) AS noidung,
+        NOW() AS thoigian,
+        dp.id_taikhoan,
+        dp.id AS id_datphong
+    FROM datphong dp
+    INNER JOIN taikhoan tk ON dp.id_taikhoan = tk.id
+    WHERE NOT EXISTS (
+        SELECT 1 FROM thuchi tc WHERE tc.id_datphong = dp.id
+    )
+    AND (
+        (tk.vaitro = 'khachhang' AND dp.trangthai = 'Chờ xác nhận')
+        OR 
+        (tk.vaitro IN ('letan', 'admin') AND dp.trangthai IN ('Đã xác nhận', 'Đã nhận phòng'))
+    )
+";
+// Chạy lệnh đồng bộ âm thầm mỗi khi load trang
+mysqli_query($conn, $sql_sync);
+// =========================================================================
+
+
+// 1. Xử lý thêm giao dịch thu/chi thủ công (Bước 5, 6, 7, 8)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'them_giaodich') {
-    $loai_gd   = trim($_POST['loai_gd'] ?? ''); // 'thu' hoặc 'chi'
-    $noidung   = trim($_POST['noidung'] ?? '');
-    $sotien    = trim($_POST['sotien'] ?? '');
-    $ngay_ps   = trim($_POST['ngay_phatsinh'] ?? '');
-    // Lấy ID tài khoản người đang đăng nhập (nếu có lưu session)
-    $id_taikhoan = $_SESSION['id'] ?? '';
+    $loai_gd     = trim($_POST['loai_gd'] ?? ''); 
+    $noidung     = trim($_POST['noidung'] ?? '');
+    $sotien      = trim($_POST['sotien'] ?? '');
+    $ngay_ps     = trim($_POST['ngay_phatsinh'] ?? '');
+    $id_taikhoan = $_SESSION['id'] ?? 0;
 
     if ($loai_gd === '' || $noidung === '' || $sotien === '' || $ngay_ps === '') {
         $message = '<script>alert("Vui lòng nhập đầy đủ các trường bắt buộc (*).");</script>';
     } elseif (!is_numeric($sotien) || $sotien <= 0) {
         $message = '<script>alert("Số tiền phải là một số lớn hơn 0.");</script>';
     } else {
-        $stmt = $conn->prepare("INSERT INTO thuchi (loaiphieu,sotien, noidung, thoigian, id_taikhoan) VALUES (?, ?, ?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO thuchi (loaiphieu, sotien, noidung, thoigian, id_taikhoan) VALUES (?, ?, ?, ?, ?)");
         $stmt->bind_param("sdssi", $loai_gd, $sotien, $noidung, $ngay_ps, $id_taikhoan);
 
         if ($stmt->execute()) {
@@ -34,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
-// 2. Xử lý tìm kiếm và lọc giao dịch (Luồng phụ A2, A3)
+// 2. Xử lý tìm kiếm và lọc giao dịch
 $keyword = isset($_GET['keyword']) ? trim($_GET['keyword']) : '';
 $filter_loai = isset($_GET['filter_loai']) ? trim($_GET['filter_loai']) : '';
 
@@ -57,13 +85,13 @@ if ($filter_loai === 'thu' || $filter_loai === 'chi') {
 
 $sql_where = count($where_clauses) > 0 ? " WHERE " . implode(" AND ", $where_clauses) : "";
 
-// Phân trang
+// Phân trang (Đã sửa lại lỗi cú pháp ở biến $start)
 $limit = 10;
 $page = isset($_GET['page_num']) ? (int)$_GET['page_num'] : 1;
 if ($page < 1) $page = 1;
 $start = ($page - 1) * $limit;
 
-// Đếm tổng số bản ghi theo điều kiện tìm kiếm/lọc
+// Đếm tổng số bản ghi
 $sql_count = "SELECT COUNT(*) AS total FROM thuchi" . $sql_where;
 if (count($params) > 0) {
     $stmt_count = $conn->prepare($sql_count);
@@ -90,20 +118,15 @@ if (count($params) > 0) {
 
 // Xử lý xem chi tiết giao dịch 
 $row_seen = null;
-
 if (isset($_GET['id'])) {
     $id = (int)$_GET['id'];
-
     $stmt_seen = $conn->prepare("SELECT * FROM thuchi WHERE id = ?");
     $stmt_seen->bind_param("i", $id);
     $stmt_seen->execute();
-
     $result_seen = $stmt_seen->get_result();
     $row_seen = mysqli_fetch_assoc($result_seen);
 }
-
 ?>
-
 <?= $message; ?>
 
 <div class="container-fluid py-4">

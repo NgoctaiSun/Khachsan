@@ -1,4 +1,4 @@
-<?php 
+<?php
 require_once __DIR__ . '/../connect.php';
 require_once 'check_permission.php';
 
@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $hash   = password_hash($matkhau, PASSWORD_DEFAULT);
             $role   = 'khachhang';
             $status = 'hoatdong';
-            
+
             $stmt = $conn->prepare("INSERT INTO taikhoan(hoten, matkhau, sdt, diachi, email, ngaytao, trangthai, vaitro) VALUES(?, ?, ?, ?, ?, NOW(), ?, ?)");
             $stmt->bind_param("sssssss", $hoten, $hash, $sdt, $diachi, $email, $status, $role);
 
@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 echo "<script>alert('Thêm người dùng mới thành công!'); window.location.href=window.location.href;</script>";
                 exit;
             } else {
-                $message = '<script>alert("Lỗi SQL: '.addslashes($stmt->error).'");</script>';
+                $message = '<script>alert("Lỗi SQL: ' . addslashes($stmt->error) . '");</script>';
             }
         }
     }
@@ -68,13 +68,72 @@ $total_records = $row_count['total'];
 $total_pages = ceil($total_records / $limit);
 $sql = "SELECT * FROM taikhoan WHERE vaitro = 'khachhang' LIMIT $start, $limit";
 $result = mysqli_query($conn, $sql);
+
+// Thống kê tổng số khách hàng, khách hàng hoạt động và khách hàng bị khóa
+$countResult = $conn->query("
+    SELECT
+      COUNT(*) total,
+      SUM(trangthai='hoatdong') active,
+      SUM(trangthai='khoa') blocked
+    FROM taikhoan
+    WHERE vaitro = 'khachhang'
+");
+$stats = $countResult->fetch_assoc();
+// 3. Xử lý tìm kiếm
+
+// Lấy từ khóa từ ô input có name="q"
+$keyword = isset($_GET['q']) ? trim($_GET['q']) : '';
+
+// Điều kiện mặc định (Ví dụ: chỉ lấy tài khoản có vai trò là khách hàng)
+$where_clauses = ["vaitro = 'khachhang'"]; 
+$params = [];
+$types = "";
+
+// Nếu người dùng có nhập từ khóa tìm kiếm
+if ($keyword !== '') {
+    // Lưu ý: Sửa lại tên 3 cột (hoten, email, sdt) cho khớp với database của bạn
+    $where_clauses[] = "(hoten LIKE ? OR email LIKE ? OR sdt LIKE ?)";
+    $search_term = "%$keyword%";
+    
+    $params[] = $search_term;
+    $params[] = $search_term;
+    $params[] = $search_term;
+    $types .= "sss"; // 3 tham số kiểu chuỗi (string)
+}
+
+$sql_where = count($where_clauses) > 0 ? " WHERE " . implode(" AND ", $where_clauses) : "";
+
+// Truy vấn danh sách khách hàng (Thay `taikhoan` bằng tên bảng của bạn nếu khác)
+$sql = "SELECT * FROM taikhoan" . $sql_where . " ORDER BY id DESC";
+
+if (count($params) > 0) {
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param($types, ...$params);
+    $stmt->execute();
+    $result = $stmt->get_result();
+} else {
+    $result = mysqli_query($conn, $sql);
+}
 ?>
+
 
 <?php echo $message; ?>
 
-<div>
-    <h1>Quản lý người dùng</h1>
-    <button id="btn" class="btn-add">+ Thêm người mới</button>
+<div class="hh-page">
+    <div class="hh-page-heading">
+        <div>
+            <span class="hh-eyebrow">HARMONY HOTEL / ADMIN</span>
+            <h1>Quản lý người dùng</h1>
+            <p>Theo dõi tình trạng và thông tin từng người dùng trong khách sạn.</p>
+        </div>
+        <button class="hh-btn hh-btn-primary" id="btn" class="btn-add">+ Thêm người mới</button>
+    </div>
+    <div class="hh-stat-grid">
+        <div class="hh-stat-card"><span>Tổng số khách hàng</span><strong><?= (int)$stats['total'] ?></strong><small>Toàn hệ thống</small></div>
+        <div class="hh-stat-card"><span>Khách hàng hoạt động</span><strong><?= (int)$stats['active'] ?></strong><small>Đang hoạt động</small></div>
+        <div class="hh-stat-card"><span>Khách hàng bị khóa</span><strong><?= (int)$stats['blocked'] ?></strong><small>Đang bị khóa</small></div>
+    </div>
+
 
     <!-- Modal Popup Form -->
     <div id="popup">
@@ -119,53 +178,78 @@ $result = mysqli_query($conn, $sql);
             </form>
         </div>
     </div>
+    <section>
+        <div class="hh-card-heading">
+            <div>
+                <h2>Danh sách khách hàng</h2>
+            </div>
+        </div>
+        <form method="GET" action="admin.php" class="hh-filter-bar">
+            <!-- Giữ lại tên page hiện tại trên URL để không bị đá ra trang chủ khi submit -->
+            <?php if (isset($_GET['page'])): ?>
+                <input type="hidden" name="page" value="<?= htmlspecialchars($_GET['page']) ?>">
+            <?php endif; ?>
 
+            <input type="text"
+                name="q"
+                placeholder="Nhập tên, email hoặc số điện thoại..."
+                value="<?= htmlspecialchars($keyword) ?>">
+
+            <button type="submit" class="hh-btn hh-btn-primary">Lọc dữ liệu</button>
+
+            <!-- Nút xóa bộ lọc, chỉ hiện khi đang có từ khóa tìm kiếm -->
+            <?php if ($keyword !== ''): ?>
+                <a href="admin.php<?= isset($_GET['page']) ? '?page=' . urlencode($_GET['page']) : '' ?>" class="hh-btn">Đặt lại</a>
+            <?php endif; ?>
+        </form>
+        <div class="hh-table-wrap">
+            <table class="hh-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tên khách hàng</th>
+                        <th>Số điện thoại</th>
+                        <th>Địa chỉ</th>
+                        <th>Email</th>
+                        <th>Ngày đăng ký</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($row = mysqli_fetch_assoc($result)): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($row['id'] ?? '') ?></td>
+                            <td><?= htmlspecialchars($row['hoten'] ?? '') ?></td>
+                            <td><?= htmlspecialchars($row['sdt'] ?? '') ?></td>
+                            <td><?= htmlspecialchars($row['diachi'] ?? '') ?></td>
+                            <td><?= htmlspecialchars($row['email'] ?? '') ?></td>
+                            <td><?= htmlspecialchars($row['ngaytao'] ?? '') ?></td>
+                            <td><span class="hh-status hh-status-<?= $row['trangthai'] === 'hoatdong' ? 'green' : ($row['trangthai'] === 'khoa' ? 'red' : 'gold') ?>"><?= htmlspecialchars($row['trangthai'] ?? '') ?></span></td>
+                            <td>
+                                <?php if (($row['trangthai'] ?? '') === 'khoa'): ?>
+                                    <a href="process_blockUser.php?id=<?= $row['id'] ?>&trangthai=hoatdong"
+                                        onclick="return confirm('Bạn có chắc chắn muốn MỞ KHÓA tài khoản này?')"
+                                        style="background: #28a745; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px;">
+                                        Mở khóa
+                                    </a>
+                                <?php else: ?>
+                                    <a href="process_blockUser.php?id=<?= $row['id'] ?>&trangthai=khoa"
+                                        onclick="return confirm('Bạn có chắc chắn muốn KHÓA tài khoản này?')"
+                                        style="background: #dc3545; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px;">
+                                        Khóa
+                                    </a>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        </div>
+    </section>
     <!-- Bảng danh sách người dùng -->
-    <div>
-        <table class="admin__table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Tên khách hàng</th>
-                    <th>Số điện thoại</th>
-                    <th>Địa chỉ</th>
-                    <th>Email</th>
-                    <th>Ngày đăng ký</th>
-                    <th>Trạng thái</th>
-                    <th>Thao tác</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php while($row = mysqli_fetch_assoc($result)): ?>
-                <tr> 
-                    <td><?= htmlspecialchars($row['id'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($row['hoten'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($row['sdt'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($row['diachi'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($row['email'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($row['ngaytao'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($row['trangthai'] ?? '') ?></td>
-                    <td>
-                        <?php if (($row['trangthai'] ?? '') === 'khoa'): ?>
-                            <a href="process_blockUser.php?id=<?= $row['id'] ?>&trangthai=hoatdong" 
-                               onclick="return confirm('Bạn có chắc chắn muốn MỞ KHÓA tài khoản này?')"
-                               style="background: #28a745; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px;">
-                               Mở khóa
-                            </a>
-                        <?php else: ?>
-                            <a href="process_blockUser.php?id=<?= $row['id'] ?>&trangthai=khoa" 
-                               onclick="return confirm('Bạn có chắc chắn muốn KHÓA tài khoản này?')"
-                               style="background: #dc3545; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px;">
-                               Khóa
-                            </a>
-                        <?php endif; ?>
-                    </td>
-                </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
-    </div>
-</div> 
+
+</div>
 
 <div class="pagination">
 
@@ -177,7 +261,7 @@ $result = mysqli_query($conn, $sql);
 
     <?php for ($i = 1; $i <= $total_pages; $i++) { ?>
         <a href="?page=userManagement&page_num=<?= $i ?>"
-           class="<?= ($page == $i) ? 'active' : '' ?>">
+            class="<?= ($page == $i) ? 'active' : '' ?>">
             <?= $i ?>
         </a>
     <?php } ?>

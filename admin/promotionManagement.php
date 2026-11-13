@@ -1,4 +1,4 @@
-<?php 
+<?php
 require_once __DIR__ . '/../connect.php';
 require_once 'check_permission.php';
 
@@ -39,7 +39,7 @@ $result = mysqli_query($conn, $sql);
 // 2. Xử lý lưu form POST trước khi SELECT dữ liệu
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'them_khuyen_mai') {
     $loaiphong = trim($_POST['loaiphong'] ?? '');
-    $dem= trim($_POST['dem'] ?? '');
+    $dem = trim($_POST['dem'] ?? '');
     $phantramgiamgia = trim($_POST['phantramgiamgia'] ?? '');
     $kiemtra = "SELECT id FROM loaiphong WHERE tenphong = '$loaiphong'";
 
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     if (mysqli_num_rows($result_kiemtra) > 0) {
         $row = mysqli_fetch_assoc($result_kiemtra);
         $id_loaiphong = $row['id'];
-        $save="INSERT INTO khuyenmai (id_loaiphong, dem, phantramgiamgia, trangthai) VALUES ($id_loaiphong, $dem, $phantramgiamgia, 'dangapdung')";
+        $save = "INSERT INTO khuyenmai (id_loaiphong, dem, phantramgiamgia, trangthai) VALUES ($id_loaiphong, $dem, $phantramgiamgia, 'dangapdung')";
         mysqli_query($conn, $save);
     }
 }
@@ -61,7 +61,7 @@ if (isset($_GET['id']) && isset($_GET['trangthai'])) {
     // Chỉ cho phép 2 giá trị này để tránh lỗi bảo mật SQL Injection
     if ($trangthai_moi === 'tamngung' || $trangthai_moi === 'dangapdung') {
         $sql = "UPDATE khuyenmai SET trangthai = '$trangthai_moi' WHERE id = $id";
-        
+
         if (mysqli_query($conn, $sql)) {
             header("Location: admin.php?page=promotionManagement&msg=success");
             exit();
@@ -69,15 +69,34 @@ if (isset($_GET['id']) && isset($_GET['trangthai'])) {
             echo "Lỗi khi cập nhật: " . mysqli_error($conn);
         }
     }
-} 
+}
+//Tổng khuyến mãi
+$countResult = $conn->query("
+    SELECT
+      COUNT(*) total,
+      SUM(trangthai='dangapdung') active,
+      SUM(trangthai='tamngung') blocked
+    FROM khuyenmai
+");
+$stats = $countResult->fetch_assoc();
 ?>
 
 
-
-<div>
-    <h1>Quản lý khuyến mãi</h1>
-    <button id="btn" class="btn-add">+ Thêm khuyến mãi mới</button>
-
+<div class="hh-page">
+    <div class="hh-page-heading">
+        <div>
+            <span class="hh-eyebrow">HARMONY HOTEL / ADMIN</span>
+            <h1>Quản lý khuyến mãi</h1>
+            <p>Theo dõi tình trạng và thông tin từng khuyến mãi trong khách sạn.</p>
+        </div>
+        <button class="hh-btn hh-btn-primary" id="btn" class="btn-add">+ Thêm khuyến mãi mới</button>
+    </div>
+    
+       <div class="hh-stat-grid">
+        <div class="hh-stat-card"><span>Tổng số khuyến mãi</span><strong><?= (int)$stats['total'] ?></strong><small>Toàn hệ thống</small></div>
+        <div class="hh-stat-card"><span>Khuyến mãi đang hoạt động</span><strong><?= (int)$stats['active'] ?></strong><small>Đang hoạt động</small></div>
+        <div class="hh-stat-card"><span>Khuyến mãi đã tạm ngưng</span><strong><?= (int)$stats['blocked'] ?></strong><small>Đã tạm ngưng</small></div>
+    </div>
     <!-- Modal Popup Form -->
     <div id="popup">
         <div class="popup-content">
@@ -113,8 +132,11 @@ if (isset($_GET['id']) && isset($_GET['trangthai'])) {
     </div>
 
     <!-- Bảng danh sách người dùng -->
-    <div>
-        <table class="admin__table">
+       <div class="hh-card-heading">
+        <h2>Danh sách khuyến mãi</h2>
+    </div>
+    <div class="hh-table-wrap">
+        <table class="hh-table">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -126,34 +148,34 @@ if (isset($_GET['id']) && isset($_GET['trangthai'])) {
                 </tr>
             </thead>
             <tbody>
-                <?php while($row = mysqli_fetch_assoc($result)): ?>
-                <tr> 
-                    <td><?= htmlspecialchars($row['id'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($row['tenphong'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($row['dem'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($row['phantramgiamgia'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($row['trangthai'] ?? '') ?></td>
-                    <td>
-                        <?php if (($row['trangthai'] ?? '') === 'tamngung'): ?>
-                            <a href="admin.php?page=promotionManagement&id=<?= $row['id_khuyenmai'] ?>&trangthai=dangapdung" 
-                               onclick="return confirm('Bạn có chắc chắn muốn Áp dụng khuyến mãi này?')"
-                               style="background: #28a745; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px;">
-                                Áp dụng
-                            </a>
-                        <?php else: ?>
-                            <a href="admin.php?page=promotionManagement&id=<?= $row['id_khuyenmai'] ?>&trangthai=tamngung" 
-                               onclick="return confirm('Bạn có chắc chắn muốn Tạm ngưng khuyến mãi này?')"
-                               style="background: #dc3545; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px;">
-                               Tạm ngưng
-                            </a>
-                        <?php endif; ?>
-                    </td>
-                </tr>
+                <?php while ($row = mysqli_fetch_assoc($result)): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($row['id'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($row['tenphong'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($row['dem'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($row['phantramgiamgia'] ?? '') ?></td>
+                        <td><span class="hh-status hh-status-<?= $row['trangthai'] === 'dangapdung' ? 'green' : 'red' ?>"><?= htmlspecialchars($row['trangthai'] ?? '') ?></span></td>
+                        <td>
+                            <?php if (($row['trangthai'] ?? '') === 'tamngung'): ?>
+                                <a href="admin.php?page=promotionManagement&id=<?= $row['id_khuyenmai'] ?>&trangthai=dangapdung"
+                                    onclick="return confirm('Bạn có chắc chắn muốn Áp dụng khuyến mãi này?')"
+                                    style="background: #28a745; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px;">
+                                    Áp dụng
+                                </a>
+                            <?php else: ?>
+                                <a href="admin.php?page=promotionManagement&id=<?= $row['id_khuyenmai'] ?>&trangthai=tamngung"
+                                    onclick="return confirm('Bạn có chắc chắn muốn Tạm ngưng khuyến mãi này?')"
+                                    style="background: #dc3545; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px;">
+                                    Tạm ngưng
+                                </a>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
                 <?php endwhile; ?>
             </tbody>
         </table>
     </div>
-</div> 
+</div>
 <div class="pagination">
 
     <?php if ($page > 1) { ?>
@@ -164,7 +186,7 @@ if (isset($_GET['id']) && isset($_GET['trangthai'])) {
 
     <?php for ($i = 1; $i <= $total_pages; $i++) { ?>
         <a href="?page=promotionManagement&page_num=<?= $i ?>"
-           class="<?= ($page == $i) ? 'active' : '' ?>">
+            class="<?= ($page == $i) ? 'active' : '' ?>">
             <?= $i ?>
         </a>
     <?php } ?>

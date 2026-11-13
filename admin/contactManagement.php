@@ -38,14 +38,31 @@ if(isset($_GET['id'])) {
         echo "Error deleting record: " . mysqli_error($conn);
     }
 }
-
+// Tổng liên hệ
+$countResult = $conn->query("
+    SELECT
+      COUNT(*) total
+    FROM lienhe
+");
+$stats = $countResult->fetch_assoc();
 ?>
-<div>
-    <p>
-        <h1>Quản lý liên hệ</h1>
-</p>
-    <div>
-        <table class="admin__table">
+<div class="hh-page">
+   <div class="hh-page-heading">
+        <div>
+            <span class="hh-eyebrow">HARMONY HOTEL / ADMIN</span>
+            <h1>Quản lý liên hệ</h1>
+            <p>Theo dõi tình trạng và thông tin liên hệ trong khách sạn.</p>
+        </div>
+    </div>
+
+       <div class="hh-stat-grid">
+        <div class="hh-stat-card"><span>Tổng số liên hệ</span><strong><?= (int)$stats['total'] ?></strong><small>Toàn hệ thống</small></div>
+    </div>
+      <div class="hh-card-heading">
+        <h2>Danh sách liên hệ</h2>
+    </div>
+    <div class="hh-table-wrap">
+        <table class="hh-table">
             <tr>
                 <th>ID</th>
                 <th>Họ và tên</th>
@@ -63,7 +80,8 @@ if(isset($_GET['id'])) {
                 <td><?php echo $row['sdt'] ?? ''; ?></td>
                 <td><?php echo $row['noidung'] ?? ''; ?></td>
                 <td><?php echo $row['thoigian'] ?? ''; ?></td>
-                <td><a href="admin.php?page=contactManagement&id=<?= $row['id'] ?>">Xóa</a></td>
+                <td><a href="admin.php?page=contactManagement&id=<?= $row['id'] ?>"
+                style="background: #dc3545; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px;">Xóa</a></td>
             </tr>
             <?php endwhile; ?>
         </table>
