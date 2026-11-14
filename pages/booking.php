@@ -6,6 +6,26 @@ if (!isset($_SESSION['id'])) {
     header('Location: index.php?page=login');
     exit;
 }
+// Tìm kiếm thông tin khách hàng thông qua số điện thoại
+$keyword = '';
+if (isset($_GET['q'])) {
+    $keyword = trim($_GET['q']);
+
+    $sql_search_sdt = "SELECT * FROM taikhoan WHERE vaitro='khachhang'";
+
+    if ($keyword !== '') {
+        $safe_keyword = mysqli_real_escape_string($conn, $keyword);
+        $sql_search_sdt .= " AND sdt LIKE '%$safe_keyword%'";
+        $sql_search_sdt .= " ORDER BY id DESC";
+        $result_search_sdt = mysqli_query($conn, $sql_search_sdt);
+        $row_search = mysqli_fetch_assoc($result_search_sdt);
+    } else {
+        $message = '<div class="hh-alert hh-error">
+            Không tìm thấy khách hàng.
+        </div>';
+    }
+}
+
 $userId = (int)$_SESSION['id'];
 $typeId = (int)($_GET['id'] ?? 0);
 
@@ -26,7 +46,11 @@ $old = [
     'ngaynhan' => '',
     'ngaytra' => '',
     'sokhach' => 1,
-    'ghichu' => ''
+    'ghichu' => '',
+    'name_vanglai' => '',
+    'phone_vanglai' => '',
+    'email_vanglai' => '',
+    'address_vanglai' => ''
 ];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -39,6 +63,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $checkOut = $old['ngaytra'];
     $guests = (int)$old['sokhach'];
     $note = trim($old['ghichu']);
+    $name_vanglai = trim($old['name_vanglai']);
+    $phone_vanglai = trim($old['phone_vanglai']);
+    $email_vanglai = trim($old['email_vanglai']);
+    $address_vanglai = trim($old['address_vanglai']);
 
     $inDate = DateTime::createFromFormat('Y-m-d', $checkIn);
     $outDate = DateTime::createFromFormat('Y-m-d', $checkOut);
@@ -102,31 +130,97 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $createdAt = date('Y-m-d H:i:s');
 
             // Kiểm tra lần cuối trước khi ghi đơn để tránh đặt trùng.
-            $insert = $conn->prepare("
+            if ($_SESSION['role'] === 'khachhang') {
+                $insert = $conn->prepare("
                 INSERT INTO datphong
                 (id_taikhoan,id_phong,ngaynhan,ngaytra,sokhach,tongtien,trangthai,thoigiandat,ghichu)
                 VALUES (?,?,?,?,?,?,?,?,?)
             ");
-            $insert->bind_param(
-                "iissiisss",
-                $userId,
-                $roomId,
-                $checkIn,
-                $checkOut,
-                $guests,
-                $total,
-                $status,
-                $createdAt,
-                $note
-            );
+                $insert->bind_param(
+                    "iissiisss",
+                    $userId,
+                    $roomId,
+                    $checkIn,
+                    $checkOut,
+                    $guests,
+                    $total,
+                    $status,
+                    $createdAt,
+                    $note
+                );
 
-            if ($insert->execute()) {
-                $bookingId = $insert->insert_id;
-                $message = '<div class="hh-alert hh-success">Đặt phòng thành công! Mã đặt phòng của bạn là <strong>#' . $bookingId . '</strong>. Vui lòng chờ khách sạn xác nhận.</div>';
-                $old = ['id_phong' => '', 'ngaynhan' => '', 'ngaytra' => '', 'sokhach' => 1, 'ghichu' => ''];
+                if ($insert->execute()) {
+                    $bookingId = $insert->insert_id;
+                    $message = '<div class="hh-alert hh-success">Đặt phòng thành công! Mã đặt phòng của bạn là <strong>#' . $bookingId . '</strong>. Vui lòng chờ khách sạn xác nhận.</div>';
+                    $old = ['id_phong' => '', 'ngaynhan' => '', 'ngaytra' => '', 'sokhach' => 1, 'ghichu' => ''];
+                } else {
+                    $message = '<div class="hh-alert hh-error">Không thể tạo đơn đặt phòng. Vui lòng thử lại.</div>';
+                }
+            } elseif ($_SESSION['role'] === 'letan' || $_SESSION['role'] === 'admin') {
+                if (isset($row_search['id'])) {
+                    $cumtomer = $row_search['id'];
+                    $insert = $conn->prepare("
+                INSERT INTO datphong
+                (id_taikhoan,id_nhanvien_dat,id_phong,ngaynhan,ngaytra,sokhach,tongtien,trangthai,thoigiandat,ghichu)
+                VALUES (?,?,?,?,?,?,?,?,?,?)
+            ");
+                    $insert->bind_param(
+                        "iiissiisss",
+                        $cumtomer,
+                        $userId,
+                        $roomId,
+                        $checkIn,
+                        $checkOut,
+                        $guests,
+                        $total,
+                        $status,
+                        $createdAt,
+                        $note
+                    );
+
+                    if ($insert->execute()) {
+                        $bookingId = $insert->insert_id;
+                        $message = '<div class="hh-alert hh-success">Đặt phòng thành công! Mã đặt phòng của bạn là <strong>#' . $bookingId . '</strong>. Vui lòng chờ khách sạn xác nhận.</div>';
+                        $old = ['id_phong' => '', 'ngaynhan' => '', 'ngaytra' => '', 'sokhach' => 1, 'ghichu' => ''];
+                    } else {
+                        $message = '<div class="hh-alert hh-error">Không thể tạo đơn đặt phòng. Vui lòng thử lại.</div>';
+                    }
+                } else {
+                    $insert = $conn->prepare("
+                INSERT INTO datphong
+                (id_nhanvien_dat,id_phong,ngaynhan,ngaytra,sokhach,tongtien,trangthai,thoigiandat,ghichu,ten_khach_vang_lai,sdt_khach_vang_lai,email_khach_vang_lai,diachi_khach_vang_lai)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+            ");
+                    $insert->bind_param(
+                        "iissiisssssss",
+                        $userId,
+                        $roomId,
+                        $checkIn,
+                        $checkOut,
+                        $guests,
+                        $total,
+                        $status,
+                        $createdAt,
+                        $note,
+                        $name_vanglai,
+                        $phone_vanglai,
+                        $email_vanglai,
+                        $address_vanglai
+
+                    );
+
+                    if ($insert->execute()) {
+                        $bookingId = $insert->insert_id;
+                        $message = '<div class="hh-alert hh-success">Đặt phòng thành công! Mã đặt phòng của bạn là <strong>#' . $bookingId . '</strong>. Vui lòng chờ khách sạn xác nhận.</div>';
+                        $old = ['id_phong' => '', 'ngaynhan' => '', 'ngaytra' => '', 'sokhach' => 1, 'ghichu' => ''];
+                    } else {
+                        $message = '<div class="hh-alert hh-error">Không thể tạo đơn đặt phòng. Vui lòng thử lại.</div>';
+                    }
+                }
             } else {
-                $message = '<div class="hh-alert hh-error">Không thể tạo đơn đặt phòng. Vui lòng thử lại.</div>';
+                echo("Lỗi");
             }
+
             $insert->close();
         }
     }
@@ -145,19 +239,6 @@ $roomList = $roomStmt->get_result();
 $roomOptions = [];
 while ($r = $roomList->fetch_assoc()) $roomOptions[] = $r;
 $roomStmt->close();
-
-// Tìm kiếm thông tin khách hàng thông qua số điện thoại
-$keyword = isset($_GET['q']) ? trim($_GET['q']) : '';
-
-$sql_search_sdt = "SELECT * FROM taikhoan WHERE vaitro='khachhang'";
-
-if ($keyword !== '') {
-    $safe_keyword = mysqli_real_escape_string($conn, $keyword);
-    $sql_search_sdt .= " AND sdt LIKE '%$safe_keyword%'";
-}
-$sql_search_sdt .= " ORDER BY id DESC";
-$result_search_sdt = mysqli_query($conn, $sql_search_sdt);
-$row_search=mysqli_fetch_assoc($result_search_sdt)
 ?>
 
 <div class="hh-page">
@@ -185,24 +266,31 @@ $row_search=mysqli_fetch_assoc($result_search_sdt)
         </div>
         <!-- Thanh tìm kiếm -->
         <?php if ($_SESSION['role'] === 'admin' || $_SESSION['role'] === 'letan'): ?>
-            <form method="GET" action="admin.php" class="hh-filter-bar">
-                <!-- Giữ lại tên page hiện tại trên URL để không bị đá ra trang chủ khi submit -->
-                <?php if (isset($_GET['page'])): ?>
-                    <input type="hidden" name="page" value="<?= htmlspecialchars($_GET['page']) ?>">
-                <?php endif; ?>
+            <form method="GET" action="index.php" class="hh-filter-bar">
 
-                <!-- Ô nhập từ khóa tìm kiếm theo tên khách hoặc email -->
+                <input type="hidden" name="page"
+                    value="<?= htmlspecialchars($_GET['page'] ?? '') ?>">
+
+                <!-- Giữ lại ID loại phòng -->
+                <input type="hidden" name="id"
+                    value="<?= (int)$typeId ?>">
+
                 <input type="text"
                     name="q"
-                    placeholder="Nhập số điện thoai khách hàng"
+                    placeholder="Nhập số điện thoại khách hàng"
                     value="<?= htmlspecialchars($keyword) ?>">
 
-                <button type="submit" class="hh-btn hh-btn-primary">Lọc dữ liệu</button>
+                <button type="submit" class="hh-btn hh-btn-primary">
+                    Tìm kiếm
+                </button>
 
-                <!-- Nút xóa bộ lọc, chỉ hiện khi đang có từ khóa tìm kiếm -->
                 <?php if ($keyword !== ''): ?>
-                    <a href="admin.php<?= isset($_GET['page']) ? '?page=' . urlencode($_GET['page']) : '' ?>" class="hh-btn">Đặt lại</a>
+                    <a href="index.php?page=<?= urlencode($_GET['page'] ?? '') ?>&id=<?= $typeId ?>"
+                        class="hh-btn">
+                        Đặt lại
+                    </a>
                 <?php endif; ?>
+
             </form>
         <?php endif; ?>
         <?php if (!$roomOptions): ?>
@@ -213,21 +301,33 @@ $row_search=mysqli_fetch_assoc($result_search_sdt)
                 <!-- Thông tin khách hàng -->
                 <?php if ($_SESSION['role'] === 'admin' || $_SESSION['role'] === 'letan'): ?>
                     <div>
-             <label for="hoten">Họ và tên *</label>
-                <input type="text" id="hoten" name="name"
-                    placeholder="Nhập họ và tên" required value="<?= isset($row_search['hoten']) ? $row_search['hoten'] : '' ?>">
+                        <div class="hh-field">
+                            <label for="hoten">Họ và tên *</label>
+                            <input type="text" id="hoten" name="name_vanglai"
+                                placeholder="Nhập họ và tên" required value="<?= isset($row_search['hoten']) ? $row_search['hoten'] : '' ?>">
 
-                <label for="sdt">Số điện thoại *</label>
-                <input type="tel" id="sdt" name="phone"
-                    placeholder="Nhập số điện thoại" required value="<?= isset($row_search['sdt']) ? $row_search['sdt'] : '' ?>">
+                        </div>
+                        <div class="hh-field">
+                            <label for="sdt">Số điện thoại *</label>
+                            <input type="tel" id="sdt" name="phone_vanglai"
+                                placeholder="Nhập số điện thoại" required value="<?= isset($row_search['sdt']) ? $row_search['sdt'] : '' ?>">
 
-                <label for="email">Email *</label>
-                <input type="email" id="email" name="email"
-                    placeholder="Nhập địa chỉ email" required value="<?= isset($row_search['email']) ? $row_search['email'] : '' ?>">
+                        </div>
+                        <div class="hh-field">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" name="email_vanglai"
+                                placeholder="Nhập địa chỉ email" required value="<?= isset($row_search['email']) ? $row_search['email'] : '' ?>">
 
-                <label for="diachi">Địa chỉ</label>
-                <input type="text" id="diachi" name="address"
-                    placeholder="Nhập địa chỉ của bạn" value="<?= isset($row_search['diachi']) ? $row_search['diachi'] : '' ?>">
+                        </div>
+                        <div class="hh-field">
+                            <label for="diachi">Địa chỉ</label>
+                            <input type="text" id="diachi" name="address_vanglai"
+                                placeholder="Nhập địa chỉ của bạn" value="<?= isset($row_search['diachi']) ? $row_search['diachi'] : '' ?>">
+                        </div>
+
+
+
+
 
                     </div>
                 <?php endif; ?>

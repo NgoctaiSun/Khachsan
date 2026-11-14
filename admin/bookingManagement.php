@@ -140,7 +140,7 @@ $summary=$conn->query("
                     <?php while($r=$result->fetch_assoc()): ?>
                     <tr>
                         <td><strong>#<?= (int)$r['id'] ?></strong><br><small><?= htmlspecialchars($r['thoigiandat']) ?></small></td>
-                        <td><?= htmlspecialchars($r['hoten']) ?><br><small><?= htmlspecialchars($r['sdt']) ?></small><br><small><?= htmlspecialchars($r['email']) ?></small></td>
+                        <td><?= htmlspecialchars($r['hoten']??$r['ten_khach_vang_lai']) ?><br><small><?= htmlspecialchars($r['sdt']??$r['sdt_khach_vang_lai']) ?></small><br><small><?= htmlspecialchars($r['email']??$r['email_khach_vang_lai']) ?></small></td>
                         <td><strong><?= htmlspecialchars($r['sophong']) ?></strong><br><small><?= htmlspecialchars($r['tenphong']) ?></small></td>
                         <td><?= date('d/m/Y H:i',strtotime($r['ngaynhan'])) ?><br>đến<br><?= date('d/m/Y H:i',strtotime($r['ngaytra'])) ?></td>
                         <td><?= (int)$r['sokhach'] ?></td>
