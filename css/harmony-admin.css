@@ -626,3 +626,49 @@
         width: 100%;
     }
 }
+/* Khung chứa 2 popup
+.popup-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 25px;
+
+    width: 100%;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Popup thông tin khách hàng và đặt phòng */
+.popup_boking, .popup_customer {
+    width: 600px;
+    max-width: 48%;
+    background: #fff;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    box-sizing: border-box;
+}
+
+
+/* Khi chỉ có 1 popup */
+.popup-container.single {
+    justify-content: center;
+}
+
+.popup-container.single .popup {
+    max-width: 600px;
+    width: 100%;
+}
+
+/* Responsive cho điện thoại */
+@media (max-width: 900px) {
+    .popup-container {
+        flex-direction: column;
+    }
+
+    .popup {
+        width: 100%;
+        max-width: 500px;
+    }
+} */

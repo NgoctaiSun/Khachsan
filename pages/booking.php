@@ -146,7 +146,18 @@ $roomOptions = [];
 while ($r = $roomList->fetch_assoc()) $roomOptions[] = $r;
 $roomStmt->close();
 
+// Tìm kiếm thông tin khách hàng thông qua số điện thoại
+$keyword = isset($_GET['q']) ? trim($_GET['q']) : '';
 
+$sql_search_sdt = "SELECT * FROM taikhoan WHERE vaitro='khachhang'";
+
+if ($keyword !== '') {
+    $safe_keyword = mysqli_real_escape_string($conn, $keyword);
+    $sql_search_sdt .= " AND sdt LIKE '%$safe_keyword%'";
+}
+$sql_search_sdt .= " ORDER BY id DESC";
+$result_search_sdt = mysqli_query($conn, $sql_search_sdt);
+$row_search=mysqli_fetch_assoc($result_search_sdt)
 ?>
 
 <div class="hh-page">
@@ -172,11 +183,56 @@ $roomStmt->close();
                 <strong><?= number_format((float)$type['gia'], 0, ',', '.') ?>đ</strong>
             </div>
         </div>
+        <!-- Thanh tìm kiếm -->
+        <?php if ($_SESSION['role'] === 'admin' || $_SESSION['role'] === 'letan'): ?>
+            <form method="GET" action="admin.php" class="hh-filter-bar">
+                <!-- Giữ lại tên page hiện tại trên URL để không bị đá ra trang chủ khi submit -->
+                <?php if (isset($_GET['page'])): ?>
+                    <input type="hidden" name="page" value="<?= htmlspecialchars($_GET['page']) ?>">
+                <?php endif; ?>
 
+                <!-- Ô nhập từ khóa tìm kiếm theo tên khách hoặc email -->
+                <input type="text"
+                    name="q"
+                    placeholder="Nhập số điện thoai khách hàng"
+                    value="<?= htmlspecialchars($keyword) ?>">
+
+                <button type="submit" class="hh-btn hh-btn-primary">Lọc dữ liệu</button>
+
+                <!-- Nút xóa bộ lọc, chỉ hiện khi đang có từ khóa tìm kiếm -->
+                <?php if ($keyword !== ''): ?>
+                    <a href="admin.php<?= isset($_GET['page']) ? '?page=' . urlencode($_GET['page']) : '' ?>" class="hh-btn">Đặt lại</a>
+                <?php endif; ?>
+            </form>
+        <?php endif; ?>
         <?php if (!$roomOptions): ?>
             <div class="hh-alert hh-error">Hiện không có phòng trống thuộc loại phòng này. Vui lòng quay lại sau.</div>
         <?php else: ?>
+            <!-- Form đặt phòng -->
             <form method="post" id="bookingForm" class="hh-form">
+                <!-- Thông tin khách hàng -->
+                <?php if ($_SESSION['role'] === 'admin' || $_SESSION['role'] === 'letan'): ?>
+                    <div>
+             <label for="hoten">Họ và tên *</label>
+                <input type="text" id="hoten" name="name"
+                    placeholder="Nhập họ và tên" required value="<?= isset($row_search['hoten']) ? $row_search['hoten'] : '' ?>">
+
+                <label for="sdt">Số điện thoại *</label>
+                <input type="tel" id="sdt" name="phone"
+                    placeholder="Nhập số điện thoại" required value="<?= isset($row_search['sdt']) ? $row_search['sdt'] : '' ?>">
+
+                <label for="email">Email *</label>
+                <input type="email" id="email" name="email"
+                    placeholder="Nhập địa chỉ email" required value="<?= isset($row_search['email']) ? $row_search['email'] : '' ?>">
+
+                <label for="diachi">Địa chỉ</label>
+                <input type="text" id="diachi" name="address"
+                    placeholder="Nhập địa chỉ của bạn" value="<?= isset($row_search['diachi']) ? $row_search['diachi'] : '' ?>">
+
+                    </div>
+                <?php endif; ?>
+
+                <!-- Mặc định -->
                 <div class="hh-form-grid">
                     <div class="hh-field">
                         <label>Chọn số phòng</label>

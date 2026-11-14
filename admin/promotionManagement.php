@@ -3,74 +3,56 @@ require_once __DIR__ . '/../connect.php';
 require_once 'check_permission.php';
 
 checkRole(['admin']);
-$limit = 10;
-//1. Xác định vị trí bắt đầu lấy dữ liệu
-// Lấy số trang hiện tại từ URL
-$page = isset($_GET['page_num']) ? (int)$_GET['page_num'] : 1;
 
-// Không cho phép trang nhỏ hơn 1
-if ($page < 1) {
-    $page = 1;
-}
-
-// Xác định vị trí bắt đầu lấy dữ liệu
-$start = ($page - 1) * $limit;
-$sql_count = "SELECT COUNT(*) AS total FROM khuyenmai";
-
-$result_count = mysqli_query($conn, $sql_count);
-$row_count = mysqli_fetch_assoc($result_count);
-
-$total_records = $row_count['total'];
-
-// Tính tổng số trang
-$total_pages = ceil($total_records / $limit);
-// Truy vấn danh sách khuyến mãi và loại phòng
-$sql = "SELECT 
-            km.id AS id_khuyenmai,
-            km.id_loaiphong,
-            km.dem,
-            km.phantramgiamgia,
-            km.trangthai,
-            lp.tenphong
-        FROM khuyenmai km
-        JOIN loaiphong lp ON km.id_loaiphong = lp.id";;
-$result = mysqli_query($conn, $sql);
-
-// 2. Xử lý lưu form POST trước khi SELECT dữ liệu
+// =========================================================================
+// 1. XỬ LÝ THÊM KHUYẾN MÃI (POST) - ĐẶT LÊN ĐẦU ĐỂ CẬP NHẬT DỮ LIỆU NGAY
+// =========================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'them_khuyen_mai') {
-    $loaiphong = trim($_POST['loaiphong'] ?? '');
-    $dem = trim($_POST['dem'] ?? '');
-    $phantramgiamgia = trim($_POST['phantramgiamgia'] ?? '');
-    $kiemtra = "SELECT id FROM loaiphong WHERE tenphong = '$loaiphong'";
+    $loaiphong       = trim($_POST['loaiphong'] ?? '');
+    $dem             = (int)($_POST['dem'] ?? 0);
+    $phantramgiamgia = (int)($_POST['phantramgiamgia'] ?? 0);
 
-    $result_kiemtra = mysqli_query($conn, $kiemtra);
-    if (mysqli_num_rows($result_kiemtra) > 0) {
-        $row = mysqli_fetch_assoc($result_kiemtra);
+    $stmt_check = $conn->prepare("SELECT id FROM loaiphong WHERE tenphong = ?");
+    $stmt_check->bind_param("s", $loaiphong);
+    $stmt_check->execute();
+    $res_check = $stmt_check->get_result();
+
+    if ($res_check->num_rows > 0) {
+        $row = $res_check->fetch_assoc();
         $id_loaiphong = $row['id'];
-        $save = "INSERT INTO khuyenmai (id_loaiphong, dem, phantramgiamgia, trangthai) VALUES ($id_loaiphong, $dem, $phantramgiamgia, 'dangapdung')";
-        mysqli_query($conn, $save);
+
+        $stmt_save = $conn->prepare("INSERT INTO khuyenmai (id_loaiphong, dem, phantramgiamgia, trangthai) VALUES (?, ?, ?, 'dangapdung')");
+        $stmt_save->bind_param("iii", $id_loaiphong, $dem, $phantramgiamgia);
+        $stmt_save->execute();
+        
+        header("Location: admin.php?page=promotionManagement&msg=added");
+        exit();
     }
 }
 
-
-// 3. Tạm ngưng hoặc áp dụng khuyến mãi
+// =========================================================================
+// 2. XỬ LÝ TẠM NGƯNG HOẶC ÁP DỤNG KHUYẾN MÃI (GET)
+// =========================================================================
 if (isset($_GET['id']) && isset($_GET['trangthai'])) {
-    $id = intval($_GET['id']);
+    $id = (int)$_GET['id'];
     $trangthai_moi = $_GET['trangthai'];
 
-    // Chỉ cho phép 2 giá trị này để tránh lỗi bảo mật SQL Injection
     if ($trangthai_moi === 'tamngung' || $trangthai_moi === 'dangapdung') {
-        $sql = "UPDATE khuyenmai SET trangthai = '$trangthai_moi' WHERE id = $id";
+        $stmt_update = $conn->prepare("UPDATE khuyenmai SET trangthai = ? WHERE id = ?");
+        $stmt_update->bind_param("si", $trangthai_moi, $id);
 
-        if (mysqli_query($conn, $sql)) {
+        if ($stmt_update->execute()) {
             header("Location: admin.php?page=promotionManagement&msg=success");
             exit();
         } else {
-            echo "Lỗi khi cập nhật: " . mysqli_error($conn);
+            echo "Lỗi khi cập nhật: " . $conn->error;
         }
     }
 }
-//Tổng khuyến mãi
+
+// =========================================================================
+// 3. THỐNG KÊ TỔNG KHUYẾN MÃI
+// =========================================================================
 $countResult = $conn->query("
     SELECT
       COUNT(*) total,
@@ -79,6 +61,79 @@ $countResult = $conn->query("
     FROM khuyenmai
 ");
 $stats = $countResult->fetch_assoc();
+
+// =========================================================================
+// 4. GỘP CHUNG TÌM KIẾM VÀ PHÂN TRANG
+// =========================================================================
+$keyword  = isset($_GET['q']) ? trim($_GET['q']) : '';
+$nights   = (isset($_GET['nights']) && $_GET['nights'] !== '') ? (int)$_GET['nights'] : '';
+$discount = (isset($_GET['discount']) && $_GET['discount'] !== '') ? (int)$_GET['discount'] : '';
+
+$base_join = "FROM khuyenmai km
+              LEFT JOIN loaiphong lp ON km.id_loaiphong = lp.id
+              WHERE 1=1";
+
+$where_sql = "";
+$params = [];
+$types  = "";
+
+// Lọc theo Tên loại phòng
+if ($keyword !== '') {
+    $where_sql .= " AND lp.tenphong LIKE ?";
+    $params[] = "%" . $keyword . "%";
+    $types .= "s";
+}
+
+// Lọc theo Số đêm
+if ($nights !== '' && $nights > 0) {
+    $where_sql .= " AND km.dem = ?";
+    $params[] = $nights;
+    $types .= "i";
+}
+
+// Lọc theo Phần trăm giảm giá
+if ($discount !== '' && $discount >= 0 && $discount <= 100) {
+    $where_sql .= " AND km.phantramgiamgia = ?";
+    $params[] = $discount;
+    $types .= "i";
+}
+
+// Tính tổng số bản ghi theo điều kiện lọc để phân trang
+$limit = 10;
+$page  = isset($_GET['page_num']) ? (int)$_GET['page_num'] : 1;
+if ($page < 1) $page = 1;
+$start = ($page - 1) * $limit;
+
+$sql_count = "SELECT COUNT(*) AS total " . $base_join . $where_sql;
+$stmt_count = $conn->prepare($sql_count);
+if (!empty($params)) {
+    $stmt_count->bind_param($types, ...$params);
+}
+$stmt_count->execute();
+$total_records = $stmt_count->get_result()->fetch_assoc()['total'] ?? 0;
+$total_pages   = ceil($total_records / $limit);
+
+// Truy vấn lấy danh sách hiển thị ra bảng (Giữ nguyên alias id_khuyenmai cho HTML bên dưới)
+$sql = "SELECT 
+            km.id AS id_khuyenmai,
+            km.id_loaiphong,
+            km.dem,
+            km.phantramgiamgia,
+            km.trangthai,
+            lp.tenphong 
+        " . $base_join . $where_sql . " 
+        ORDER BY km.id DESC 
+        LIMIT ?, ?";
+
+$list_params = $params;
+$list_params[] = $start;
+$list_params[] = $limit;
+$list_types = $types . "ii";
+
+$stmt = $conn->prepare($sql);
+$stmt->bind_param($list_types, ...$list_params);
+$stmt->execute();
+$result = $stmt->get_result();
 ?>
 
 
@@ -135,6 +190,42 @@ $stats = $countResult->fetch_assoc();
        <div class="hh-card-heading">
         <h2>Danh sách khuyến mãi</h2>
     </div>
+    <form method="GET" action="admin.php" class="hh-filter-bar">
+    <!-- Giữ lại tên page hiện tại trên URL để không bị đá ra trang chủ khi submit -->
+    <?php if (isset($_GET['page'])): ?>
+        <input type="hidden" name="page" value="<?= htmlspecialchars($_GET['page']) ?>">
+    <?php endif; ?>
+
+    <!-- Ô nhập tên loại phòng -->
+    <input type="text"
+        name="q"
+        placeholder="Nhập tên loại phòng..."
+        value="<?= htmlspecialchars($keyword) ?>">
+
+    <!-- Ô nhập số đêm -->
+    <input type="number"
+        name="nights"
+        min="1"
+        placeholder="Số đêm (VD: 2)"
+        value="<?= htmlspecialchars((string)$nights) ?>"
+        style="width: 140px;">
+
+    <!-- Ô nhập phần trăm giảm giá -->
+    <input type="number"
+        name="discount"
+        min="1"
+        max="100"
+        placeholder="% giảm (VD: 15)"
+        value="<?= htmlspecialchars((string)$discount) ?>"
+        style="width: 150px;">
+
+    <button type="submit" class="hh-btn hh-btn-primary">Lọc dữ liệu</button>
+
+    <!-- Nút xóa bộ lọc: hiện khi có ít nhất 1 tiêu chí đang được lọc -->
+    <?php if ($keyword !== '' || $nights !== '' || $discount !== ''): ?>
+        <a href="admin.php<?= isset($_GET['page']) ? '?page=' . urlencode($_GET['page']) : '' ?>" class="hh-btn">Đặt lại</a>
+    <?php endif; ?>
+</form>
     <div class="hh-table-wrap">
         <table class="hh-table">
             <thead>
